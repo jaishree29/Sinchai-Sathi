@@ -22,7 +22,7 @@ class _NavbarState extends State<Navbar> {
       const HomeScreen(),
       WeatherScreen(),
       const IrrigationScreen(),
-      const MarketScreen(),
+      MarketScreen(),
       const ProfilePage()
     ];
     return Scaffold(
