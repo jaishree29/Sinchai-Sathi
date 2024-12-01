@@ -20,7 +20,7 @@ class _NavbarState extends State<Navbar> {
   Widget build(BuildContext context) {
     List screenList = [
       const HomeScreen(),
-      const WeatherScreen(),
+      WeatherScreen(),
       const IrrigationScreen(),
       const MarketScreen(),
       const ProfilePage()

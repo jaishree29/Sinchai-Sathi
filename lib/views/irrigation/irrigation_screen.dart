@@ -9,7 +9,7 @@ class IrrigationScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () {},
         ),
         title: Text(
@@ -18,7 +18,7 @@ class IrrigationScreen extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -27,17 +27,17 @@ class IrrigationScreen extends StatelessWidget {
               style: GoogleFonts.poppins(
                   fontSize: 30.0, fontWeight: FontWeight.w600),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 40.0,
                   backgroundImage: NetworkImage(
                       "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Button_dripper.JPG/1200px-Button_dripper.JPG"),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 20.0,
                 ),
                 Container(
@@ -59,17 +59,17 @@ class IrrigationScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 40.0,
                   backgroundImage: NetworkImage(
                       "https://m.media-amazon.com/images/I/91j1Q7xEgZL._AC_UF1000,1000_QL80_.jpg"),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 20.0,
                 ),
                 Container(
@@ -91,17 +91,17 @@ class IrrigationScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 40.0,
                   backgroundImage: NetworkImage(
                       "https://types.blog/wp-content/uploads/2023/12/disadvantages-of-fertigation.jpg"),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 20.0,
                 ),
                 Container(
