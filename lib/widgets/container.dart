@@ -15,8 +15,7 @@ class SContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        SizedBox(
           height: 140.0,
           width: double.infinity,
           child: Card(
