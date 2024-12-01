@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/views/home/home_screen.dart';
 import 'package:sinchai_sathi/views/irrigation/irrigation_screen.dart';
-import 'package:sinchai_sathi/views/market/market_Screen.dart';
-import 'package:sinchai_sathi/views/profile/profile_page.dart';
-import 'package:sinchai_sathi/views/weather/weather_Screen.dart';
+import 'package:sinchai_sathi/views/market/market_screen.dart';
+import 'package:sinchai_sathi/views/weather/weather_screen.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -34,7 +33,6 @@ class _NavbarState extends State<Navbar> {
     const WeatherScreen(),
     const IrrigationScreen(),
     const MarketScreen(),
-    const ProfilePage(),
   ];
 
   final List<BottomNavigationBarItem> userNavigationItems = [
@@ -53,10 +51,6 @@ class _NavbarState extends State<Navbar> {
     const BottomNavigationBarItem(
       icon: Icon(Icons.place_rounded),
       label: 'Market',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.person),
-      label: 'Profile',
     ),
   ];
 
