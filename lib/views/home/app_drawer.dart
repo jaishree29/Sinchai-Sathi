@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sinchai_sathi/utils/colors.dart';
 
 class SAppDrawer extends StatelessWidget {
   const SAppDrawer({super.key});
@@ -7,23 +6,15 @@ class SAppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      shadowColor: Colors.grey,
+      elevation: 5.0,
+      shape: const Border(right: BorderSide.none),
       backgroundColor:
-          const Color.fromARGB(255, 247, 255, 235).withOpacity(0.9),
+          Colors.white,
       child: ListView(
         children: <Widget>[
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: SColors.primary,
-            ),
-            child: Center(
-              child: Text(
-                'Dashboard',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
+          const SizedBox(
+            height: 30,
           ),
           ListTile(
             leading: const Icon(Icons.dashboard),

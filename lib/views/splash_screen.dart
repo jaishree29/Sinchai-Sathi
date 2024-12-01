@@ -3,7 +3,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
-import 'package:sinchai_sathi/views/navbar.dart';
+import 'package:sinchai_sathi/views/auth/signup_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -43,7 +43,7 @@ class SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const Navbar(),
+          builder: (context) => const SignupScreen(),
         ),
       );
     });
@@ -72,9 +72,10 @@ class SplashScreenState extends State<SplashScreen> {
                   'Sinchai Sathi',
                   duration: const Duration(seconds: 3),
                   textStyle: const TextStyle(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic),
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ]),
             ),
