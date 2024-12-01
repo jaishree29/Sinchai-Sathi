@@ -43,16 +43,16 @@ class _NavbarState extends State<Navbar> {
       label: 'Home',
     ),
     const BottomNavigationBarItem(
-      icon: Icon(Icons.contact_mail_rounded),
+      icon: Icon(Icons.cloud),
       label: 'Weather',
     ),
     const BottomNavigationBarItem(
-      icon: Icon(Icons.search),
+      icon: Icon(Icons.water_drop),
       label: 'Irrigation',
     ),
     const BottomNavigationBarItem(
-      icon: Icon(Icons.feedback),
-      label: 'Market Place',
+      icon: Icon(Icons.place_rounded),
+      label: 'Market',
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.person),
@@ -81,9 +81,9 @@ class _NavbarState extends State<Navbar> {
         ),
         child: ClipRRect(
           child: BottomNavigationBar(
-            selectedLabelStyle: TextStyle(fontWeight: FontWeight.w700),
-            selectedItemColor: SColors.secondPrimary,
-            unselectedItemColor: Colors.grey[700],
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
+            selectedItemColor: SColors.primary,
+            unselectedItemColor: Colors.grey[500],
             type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.white,
             currentIndex: myCurrentIndex,
