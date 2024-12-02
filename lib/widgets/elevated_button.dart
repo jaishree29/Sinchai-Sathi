@@ -17,7 +17,7 @@ class SElevatedButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
         ),
         backgroundColor: SColors.primary,
-        padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+        padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.21, vertical: 15),
         textStyle: const TextStyle(fontSize: 18),
       ),
       child: Text(text),

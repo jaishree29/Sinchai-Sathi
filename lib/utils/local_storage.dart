@@ -35,9 +35,24 @@ class SLocalStorage {
     return readData<String>('userName');
   }
 
+
   // Save user name
   Future<void> saveUserName(String name) async {
     await saveData('userName', name);
+  }
+  // Save user ID
+  Future<void> saveUserId(String userId) async {
+    await saveData('userId', userId);
+  }
+
+  // Get user ID
+  Future<String?> getUserId() async {
+    return readData<String>('userId');
+  }
+
+  // Remove user ID
+  Future<void> removeUserId() async {
+    await removeData('userId');
   }
 
   // Remove user Name

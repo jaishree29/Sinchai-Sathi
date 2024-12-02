@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen>
             padding: EdgeInsets.only(left: 12.0),
             child: CircleAvatar(
               backgroundImage: NetworkImage(
-                'https://img.freepik.com/free-photo/waist-up-portrait-handsome-serious-unshaven-male-keeps-hands-together-dressed-dark-blue-shirt-has-talk-with-interlocutor-stands-against-white-wall-self-confident-man-freelancer_273609-16320.jpg?t=st=1733061873~exp=1733065473~hmac=83a766b2a8964bbdeaae2af625097b00706a4905eddb342aadc9b01a6ccaedf1&w=1380',
+                'https://img.freepik.com/free-vector/cute-cool-boy-dabbing-pose-cartoon-vector-icon-illustration-people-fashion-icon-concept-isolated_138676-5680.jpg?t=st=1733131305~exp=1733134905~hmac=a1b05ebdf1385da653bf6ec4e40b0bf395afbc7af28f13c8c9a70a47d7074292&w=740',
               ),
             ),
           ),
