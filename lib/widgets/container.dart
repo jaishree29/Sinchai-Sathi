@@ -8,7 +8,7 @@ class SContainer extends StatelessWidget {
     required this.icon,
   });
 
-  final child;
+  final Widget child;
   final IconData icon;
 
   @override

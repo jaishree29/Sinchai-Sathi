@@ -3,6 +3,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
+import 'package:sinchai_sathi/utils/image_strings.dart';
 import 'package:sinchai_sathi/views/auth/signup_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -56,29 +57,28 @@ class SplashScreenState extends State<SplashScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Image.asset(SImages.logo),
           const SizedBox(
             height: 20,
           ),
-          Center(
-            child: DefaultTextStyle(
-              style: const TextStyle(
-                fontSize: 50,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              child:
-                  AnimatedTextKit(isRepeatingAnimation: false, animatedTexts: [
-                FadeAnimatedText(
-                  'Sinchai Sathi',
-                  duration: const Duration(seconds: 3),
-                  textStyle: const TextStyle(
-                    fontSize: 50,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ]),
+          DefaultTextStyle(
+            style: const TextStyle(
+              fontSize: 50,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
+            child:
+                AnimatedTextKit(isRepeatingAnimation: false, animatedTexts: [
+              FadeAnimatedText(
+                'Sinchai Sathi',
+                duration: const Duration(seconds: 3),
+                textStyle: const TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ]),
           ),
         ],
       ),
