@@ -1,76 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sinchai_sathi/controllers/auth_controller.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
+import 'package:sinchai_sathi/views/auth/signup_screen.dart';
 import 'package:sinchai_sathi/views/navbar.dart';
+import 'package:sinchai_sathi/widgets/elevated_button.dart';
+import 'package:sinchai_sathi/widgets/textfield.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final AuthController _authController = AuthController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
+
+  Future<void> _login() async {
+    try {
+      final user = await _authController.login(_contactNumberController.text);
+      print('User logged in: ${user.name}');
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const Navbar(),
+        ),
+      );
+    } catch (e) {
+      print('Error logging in: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong!'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset("assets/images/hero1.png"),
-              const SizedBox(
-                height: 30,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 45.0),
-                child: Text(
-                  "Login",
-                  style: GoogleFonts.poppins(
-                      fontSize: 30.0, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                      hintText: "Phone Number",
-                      icon: Icon(Icons.phone_android)),
-                ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 40.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Column(
                   children: [
-                    SizedBox(
-                      height: 50.0,
-                      width: 140.0,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const Navbar(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: SColors.primary,
+                    Image.asset("assets/logos/hero1.png"),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Text(
+                      "Login",
+                      style: GoogleFonts.poppins(
+                          fontSize: 30.0, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    STextField(
+                        labelText: 'Contact Number',
+                        controller: _contactNumberController),
+                    const SizedBox(height: 40),
+                    SElevatedButton(text: 'Login', onPressed: _login),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Create an account now!",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SignupScreen(),
                         ),
-                        child: Text(
-                          "Login",
-                          style: GoogleFonts.poppins(
-                              color: Colors.white, fontSize: 20.0),
+                      ),
+                      child: Text(
+                        "Sign Up",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: SColors.primary,
                         ),
                       ),
                     ),
                   ],
                 ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),

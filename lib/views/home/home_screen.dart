@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
+import 'package:sinchai_sathi/utils/local_storage.dart';
 import 'package:sinchai_sathi/views/alerts/notifications.dart';
 import 'package:sinchai_sathi/views/home/about_crops_screen.dart';
 import 'package:sinchai_sathi/views/home/app_drawer.dart';
@@ -20,9 +21,19 @@ class _HomeScreenState extends State<HomeScreen>
   late Animation<Offset> _animation;
   bool _isDrawerOpen = false;
 
+  String userName = '';
+
+  Future<void> _fetchUserDetails() async {
+    String? name = await SLocalStorage().getUserName();
+    setState(() {
+      userName = name ?? '';
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _fetchUserDetails();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -30,10 +41,12 @@ class _HomeScreenState extends State<HomeScreen>
     _animation = Tween<Offset>(
       begin: const Offset(0.0, -0.1),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
   }
 
   @override
@@ -74,10 +87,10 @@ class _HomeScreenState extends State<HomeScreen>
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Welcome back,',
                   style: TextStyle(
                     fontWeight: FontWeight.normal,
@@ -85,8 +98,8 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 Text(
-                  'Sarthak',
-                  style: TextStyle(
+                  userName.isNotEmpty ? userName : 'User',
+                  style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 25,
                       color: SColors.primary),
@@ -267,13 +280,18 @@ class _HomeScreenState extends State<HomeScreen>
                   children: [
                     const Text(
                       "About Crops",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutCropsScreen())),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AboutCropsScreen())),
                       child: const Text(
                         "See all",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

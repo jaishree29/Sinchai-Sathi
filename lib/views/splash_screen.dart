@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/utils/image_strings.dart';
 import 'package:sinchai_sathi/views/auth/signup_screen.dart';
+import 'package:sinchai_sathi/views/navbar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,25 +23,25 @@ class SplashScreenState extends State<SplashScreen> {
   }
 
   void whereToGo() async {
-    // var sharedPref = await SharedPreferences.getInstance();
-    // var isLoggedIn = sharedPref.getBool(loginKey);
+    var sharedPref = await SharedPreferences.getInstance();
+    var isLoggedIn = sharedPref.getBool(loginKey);
     Timer(const Duration(seconds: 3), () {
-      // if (isLoggedIn != null) {
-      //   if (isLoggedIn) {
-      //     Navigator.pushReplacement(
-      //         context, MaterialPageRoute(builder: (context) => const Navbar()));
-      //   } else {
-      //     Navigator.pushReplacement(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => const SignupScreen()),
-      //     );
-      //   }
-      // } else {
-      //   Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(builder: (context) => const SignupScreen()),
-      //   );
-      // }
+      if (isLoggedIn != null) {
+        if (isLoggedIn) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const Navbar()));
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const SignupScreen()),
+          );
+        }
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SignupScreen()),
+        );
+      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -71,7 +72,7 @@ class SplashScreenState extends State<SplashScreen> {
                 AnimatedTextKit(isRepeatingAnimation: false, animatedTexts: [
               FadeAnimatedText(
                 'Sinchai Sathi',
-                duration: const Duration(seconds: 3),
+                duration: const Duration(seconds: 5),
                 textStyle: const TextStyle(
                   fontSize: 50,
                   fontWeight: FontWeight.bold,

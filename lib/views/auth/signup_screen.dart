@@ -1,84 +1,143 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sinchai_sathi/controllers/auth_controller.dart';
+import 'package:sinchai_sathi/models/user.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
+import 'package:sinchai_sathi/views/auth/login_screen.dart';
 import 'package:sinchai_sathi/views/navbar.dart';
+import 'package:sinchai_sathi/widgets/elevated_button.dart';
+import 'package:sinchai_sathi/widgets/textfield.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
+
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final AuthController _authController = AuthController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _cropTypeController = TextEditingController();
+  final TextEditingController _waterPumpWattController =
+      TextEditingController();
+
+  Future<void> _signup() async {
+    final user = User(
+      name: _nameController.text,
+      contactNumber: _contactNumberController.text,
+      location: _locationController.text,
+      cropType: _cropTypeController.text,
+      waterPumpWatt: int.parse(_waterPumpWattController.text),
+      irrigationState: 'off',
+    );
+
+    try {
+      final newUser = await _authController.signup(user);
+      print('User signed up: ${newUser.name}');
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const Navbar(),
+        ),
+      );
+    } catch (e) {
+      print('Error signing up: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong!'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => const Navbar()));
-        },
-        backgroundColor: SColors.primary,
-        child: const Icon(
-          Icons.arrow_forward_ios,
-          color: Colors.white,
-        ),
-      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset("assets/logos/hero1.png"),
-              const SizedBox(
-                height: 30,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 45.0),
-                child: Text(
-                  "Signup",
-                  style: GoogleFonts.poppins(
-                      fontSize: 30.0, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                      hintText: "Phone Number",
-                      icon: Icon(Icons.phone_android)),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                      hintText: "Full Name", icon: Icon(Icons.person)),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                child: Row(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
                   children: [
-                    Checkbox(
-                        value: false,
-                        activeColor: SColors.primary,
-                        onChanged: (bool? newValue) {}),
-                    Expanded(
-                        child: Text(
-                      "By singing up you are agreeing to our Privacy policy & T&C",
-                      style: GoogleFonts.poppins(fontSize: 12.0),
-                    ))
+                    Image.asset("assets/logos/hero1.png"),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Text(
+                      "Signup",
+                      style: GoogleFonts.poppins(
+                          fontSize: 30.0, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    STextField(
+                      labelText: 'Name',
+                      controller: _nameController,
+                    ),
+                    const SizedBox(height: 10),
+                    STextField(
+                        labelText: 'Contact Number',
+                        controller: _contactNumberController),
+                    const SizedBox(height: 10),
+                    STextField(
+                      labelText: 'Location',
+                      controller: _locationController,
+                    ),
+                    const SizedBox(height: 10),
+                    STextField(
+                      labelText: 'Crop Type',
+                      controller: _cropTypeController,
+                    ),
+                    const SizedBox(height: 10),
+                    STextField(
+                      labelText: 'Water Pump Watt',
+                      controller: _waterPumpWattController,
+                    ),
+                    const SizedBox(height: 30),
                   ],
                 ),
-              )
-            ],
+                SElevatedButton(
+                  text: 'Signup',
+                  onPressed: _signup,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Already a user?",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      ),
+                      child: Text(
+                        "Sign in",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: SColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
