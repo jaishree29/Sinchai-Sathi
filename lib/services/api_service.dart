@@ -54,7 +54,7 @@ class ApiService {
   }
 
   //Pump Status working fine
-  Future<String> togglePumpStatus(int farmerId, motorStatus) async {
+  Future<String> togglePumpStatus(int farmerId, bool motorStatus) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$changePumpStatus/$farmerId'),
       headers: {'Content-Type': 'application/json'},
@@ -111,6 +111,23 @@ class ApiService {
       print(response.body.toString());
       print('Status code: ${response.statusCode}');
       throw Exception('Failed to create schedule');
+    }
+  }
+
+  //Update Schedule
+  Future<Schedule> updateSchedule(
+      int id, Map<String, dynamic> scheduleData) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/$schedule/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(scheduleData),
+    );
+    if (response.statusCode == 200) {
+      return Schedule.fromJson(jsonDecode(response.body));
+    } else {
+      print(response.body.toString());
+      print('Status code: ${response.statusCode}');
+      throw Exception('Failed to update schedule');
     }
   }
 
