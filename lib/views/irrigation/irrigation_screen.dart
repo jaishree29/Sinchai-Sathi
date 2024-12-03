@@ -24,11 +24,14 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
   void initState() {
     super.initState();
     fetchSchedules();
+    fetchMotorStatus();
   }
 
+  // Fetch schedules working fine
   void fetchSchedules() async {
     try {
       final fetchedSchedules = await apiService.getSchedules(1);
+      print('Schedules fetched successfully');
       setState(() {
         schedules = fetchedSchedules;
         isLoading = false;
@@ -41,6 +44,20 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
     }
   }
 
+  // Motor status working fine
+  void fetchMotorStatus() async {
+    try {
+      final status = await apiService.getPumpStatus(1);
+      print('Motor status fetched successfully');
+      setState(() {
+        motorStatus = status == 'on';
+      });
+    } catch (e) {
+      print('Error fetching motor status: $e');
+    }
+  }
+
+  // Toggling motor working fine
   void toggleMotor() async {
     final userId = await SLocalStorage().getUserId();
     print('User ID: $userId');
@@ -50,39 +67,52 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
         print('Invalid user ID: $userId');
         return;
       }
-      final status = await apiService.togglePumpStatus(userIdInt);
       setState(() {
-        motorStatus = status == 'on';
+        motorStatus = !motorStatus;
       });
+      final status = await apiService.togglePumpStatus(userIdInt, motorStatus);
+      print('Motor status toggled successfully: $status');
     } catch (e) {
       print('Error toggling motor: $e');
+      setState(() {
+        motorStatus = !motorStatus;
+      });
     }
   }
 
-  void addSchedule(String startTime, String endTime, String repeat) async {
+void addSchedule(String startTime, String endTime, String repeat) async {
     final userId = await SLocalStorage().getUserId();
-    print(userId);
+    print('User ID from local storage: $userId');
+
     try {
+      final userIdInt = int.tryParse(userId!);
+
+      if (userIdInt == null) {
+        print('Invalid user ID: $userId');
+        return; 
+      }
+
       final newSchedule = await apiService.createSchedule({
-        'farmerId': int.tryParse('$userId'),
+        'farmerId': userIdInt, 
         'startTime': startTime,
         'endTime': endTime,
         'repeat': repeat,
       });
+
       setState(() {
         schedules.add(newSchedule);
       });
     } catch (e) {
-      print(e);
+      print('Error creating schedule: $e');
     }
   }
 
+
+  // Delete Schedule working fine
   void deleteSchedule(int id) async {
     try {
       await apiService.deleteSchedule(id);
-      setState(() {
-        schedules.removeWhere((schedule) => schedule.id == id);
-      });
+      fetchSchedules();
     } catch (e) {
       print(e);
     }
@@ -91,7 +121,15 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Water Scheduling')),
+      appBar: AppBar(
+        title: const Text('Water Scheduling'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: fetchSchedules,
+          ),
+        ],
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(

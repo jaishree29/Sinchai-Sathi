@@ -53,10 +53,12 @@ class ApiService {
     }
   }
 
-  //Pump Status
-  Future<String> togglePumpStatus(int farmerId) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/$changePumpStatus/1'),
+  //Pump Status working fine
+  Future<String> togglePumpStatus(int farmerId, motorStatus) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$changePumpStatus/$farmerId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'power': motorStatus ? 1 : 0}),
     );
 
     if (response.statusCode == 200) {
@@ -68,13 +70,28 @@ class ApiService {
     }
   }
 
-  //Get Schedules
-  Future<List<Schedule>> getSchedules(int farmerId) async {
-    final response =
-        await http.get(Uri.parse('$baseUrl/$schedule?farmerId=$farmerId'));
+  //Get pump status working fine
+  Future<String> getPumpStatus(int farmerId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/$pumpStatus/$farmerId'),
+    );
+
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Schedule.fromJson(json)).toList();
+      final data = jsonDecode(response.body);
+      return data['irrigationState'];
+    } else {
+      print(response.body.toString());
+      throw Exception('Failed to get pump status');
+    }
+  }
+
+  //Get Schedules working fine
+  Future<List<Schedule>> getSchedules(int farmerId) async {
+    final response = await http.get(Uri.parse('$baseUrl/$schedule/$farmerId'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> schedulesData = data['schedules'];
+      return schedulesData.map((json) => Schedule.fromJson(json)).toList();
     } else {
       print(response.body.toString());
       throw Exception('Failed to load schedules');
@@ -92,14 +109,17 @@ class ApiService {
       return Schedule.fromJson(jsonDecode(response.body));
     } else {
       print(response.body.toString());
+      print('Status code: ${response.statusCode}');
       throw Exception('Failed to create schedule');
     }
   }
 
   //Delete Schedule
   Future<void> deleteSchedule(int id) async {
-    final response =
-        await http.delete(Uri.parse('$baseUrl/irrigation/schedule/$id'));
+    final response = await http.delete(Uri.parse('$baseUrl/$schedule/$id'));
+    if (response.statusCode == 200) {
+      throw Exception('Schedule deleted successfully!');
+    }
     if (response.statusCode != 204) {
       print(response.body.toString());
       throw Exception('Failed to delete schedule');
