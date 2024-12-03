@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sinchai_sathi/models/schedule_model.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
+import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/utils/local_storage.dart';
 import 'package:sinchai_sathi/views/irrigation/schedule_list_tile.dart';
 import 'package:sinchai_sathi/views/irrigation/switch_button.dart';
@@ -80,7 +81,9 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
     }
   }
 
-void addSchedule(String startTime, String endTime, String repeat) async {
+  //Create schedule
+
+  void addSchedule(String startTime, String endTime, String repeat) async {
     final userId = await SLocalStorage().getUserId();
     print('User ID from local storage: $userId');
 
@@ -89,11 +92,11 @@ void addSchedule(String startTime, String endTime, String repeat) async {
 
       if (userIdInt == null) {
         print('Invalid user ID: $userId');
-        return; 
+        return;
       }
 
       final newSchedule = await apiService.createSchedule({
-        'farmerId': userIdInt, 
+        'farmerId': userIdInt,
         'startTime': startTime,
         'endTime': endTime,
         'repeat': repeat,
@@ -106,7 +109,6 @@ void addSchedule(String startTime, String endTime, String repeat) async {
       print('Error creating schedule: $e');
     }
   }
-
 
   // Delete Schedule working fine
   void deleteSchedule(int id) async {
@@ -132,52 +134,65 @@ void addSchedule(String startTime, String endTime, String repeat) async {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Motor Status
-                  MotorStatusWidget(
-                    motorStatus: motorStatus,
-                    onChanged: (value) => toggleMotor(),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Schedule
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Schedule', style: TextStyle(fontSize: 18)),
-                      ElevatedButton(
-                        child: const Text('Add Schedule'),
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) => ScheduleDialog(
-                            onScheduleAdded: (startTime, endTime, repeat) {
-                              addSchedule(startTime, endTime, repeat);
-                            },
+          : SingleChildScrollView(
+            child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Motor Status
+                    MotorStatusWidget(
+                      motorStatus: motorStatus,
+                      onChanged: (value) => toggleMotor(),
+                    ),
+                    const SizedBox(height: 20),
+            
+                    // Schedule
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Schedule', style: TextStyle(fontSize: 18)),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            backgroundColor: SColors.primary,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                            textStyle: const TextStyle(fontSize: 18),
                           ),
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (context) => ScheduleDialog(
+                              onScheduleAdded: (startTime, endTime, repeat) {
+                                addSchedule(startTime, endTime, repeat);
+                              },
+                            ),
+                          ),
+                          child: const Text('Add Schedule'),
                         ),
-                      ),
-                    ],
-                  ),
-
-                  // List of schedules
-                  ...schedules.map((schedule) {
-                    return ScheduleListTile(
-                      schedule: schedule,
-                      onDelete: (id) => deleteSchedule(id),
-                    );
-                  }),
-
-                  const SizedBox(height: 20),
-
-                  // Water Savings
-                  const WaterSavingChart(),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+            
+                    // List of schedules
+                    ...schedules.map((schedule) {
+                      return ScheduleListTile(
+                        schedule: schedule,
+                        onDelete: (id) => deleteSchedule(id),
+                      );
+                    }),
+            
+                    const SizedBox(height: 20),
+            
+                    // Water Savings
+                    const WaterSavingChart(),
+                  ],
+                ),
               ),
-            ),
+          ),
     );
   }
 }

@@ -8,7 +8,7 @@ import '../models/user.dart';
 class ApiService {
   static const String baseUrl = 'https://sichaisathi.onrender.com';
 
-  //Sign Up
+  //Sign Up is working fine
   Future<User> signup(User user) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$createFarmer'),
@@ -32,7 +32,7 @@ class ApiService {
     }
   }
 
-  //Login
+  //Login is working fine
   Future<User> login(String contactNumber) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$getFarmer'),
@@ -98,7 +98,7 @@ class ApiService {
     }
   }
 
-  //Create Schedule
+  //Create Schedule is working fine
   Future<Schedule> createSchedule(Map<String, dynamic> scheduleData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$schedule'),
@@ -114,7 +114,7 @@ class ApiService {
     }
   }
 
-  //Update Schedule
+  //Update Schedule not functional yet
   Future<Schedule> updateSchedule(
       int id, Map<String, dynamic> scheduleData) async {
     final response = await http.put(
@@ -131,7 +131,7 @@ class ApiService {
     }
   }
 
-  //Delete Schedule
+  //Delete Schedule working fine
   Future<void> deleteSchedule(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/$schedule/$id'));
     if (response.statusCode == 200) {
@@ -156,6 +156,20 @@ class ApiService {
     } else {
       print(response.body.toString());
       throw Exception('Failed to load soil analysis data');
+    }
+  }
+
+  //fetch weather data is working fine
+  Future<Map<String, dynamic>> fetchWeatherData(double lat, double lon) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/v1/weather?lat=$lat&lon=$lon'),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print(response.body.toString());
+      throw Exception('Failed to fetch weather data');
     }
   }
 }

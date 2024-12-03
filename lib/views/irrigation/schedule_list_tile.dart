@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sinchai_sathi/models/schedule_model.dart';
+import 'package:sinchai_sathi/utils/colors.dart';
 
 class ScheduleListTile extends StatelessWidget {
   final Schedule schedule;
@@ -14,9 +15,15 @@ class ScheduleListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Colors.white,
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: SColors.primary)
+        ),
         padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
