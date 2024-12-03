@@ -25,6 +25,7 @@ class SplashScreenState extends State<SplashScreen> {
   void whereToGo() async {
     var sharedPref = await SharedPreferences.getInstance();
     var isLoggedIn = sharedPref.getBool(loginKey);
+    print('is logged in: $isLoggedIn');
     Timer(const Duration(seconds: 3), () {
       if (isLoggedIn != null) {
         if (isLoggedIn) {
@@ -42,12 +43,6 @@ class SplashScreenState extends State<SplashScreen> {
           MaterialPageRoute(builder: (context) => const SignupScreen()),
         );
       }
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SignupScreen(),
-        ),
-      );
     });
   }
 
@@ -68,8 +63,7 @@ class SplashScreenState extends State<SplashScreen> {
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
-            child:
-                AnimatedTextKit(isRepeatingAnimation: false, animatedTexts: [
+            child: AnimatedTextKit(isRepeatingAnimation: false, animatedTexts: [
               FadeAnimatedText(
                 'Sinchai Sathi',
                 duration: const Duration(seconds: 5),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sinchai_sathi/controllers/auth_controller.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/views/auth/signup_screen.dart';
 import 'package:sinchai_sathi/views/navbar.dart';
+import 'package:sinchai_sathi/views/splash_screen.dart';
 import 'package:sinchai_sathi/widgets/elevated_button.dart';
 import 'package:sinchai_sathi/widgets/textfield.dart';
 
@@ -22,17 +24,32 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     try {
       final user = await _authController.login(_contactNumberController.text);
+      var sharedPref = await SharedPreferences.getInstance();
+      sharedPref.setBool(SplashScreenState.loginKey, true);
       print('User logged in: ${user.name}');
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const Navbar(),
         ),
       );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Welcome back, ${user.name}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      );
     } catch (e) {
       print('Error logging in: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Something went wrong!'),
+          content: Text(
+            'Something went wrong!',
+          ),
         ),
       );
     }

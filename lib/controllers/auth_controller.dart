@@ -9,13 +9,15 @@ class AuthController {
 
   Future<User> signup(User user) async {
     final newUser = await _apiService.signup(user);
-    await _localStorage.saveUserName(newUser.name); 
+    await _localStorage.saveUserName(newUser.name);
+    await _localStorage.saveUserId(newUser.id.toString());
     return newUser;
   }
 
   Future<User> login(String contactNumber) async {
     final user = await _apiService.login(contactNumber);
     await _localStorage.saveUserName(user.name);
+    await _localStorage.saveUserId(user.id.toString());
     return user;
   }
 }

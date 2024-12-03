@@ -23,6 +23,9 @@ class ApiService {
       final farmerId = responseBody['id'];
       await SLocalStorage().saveUserId(farmerId.toString());
       return User.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 400) {
+      print(response.body.toString());
+      throw Exception('User already exists');
     } else {
       print(response.body.toString());
       throw Exception('Failed to signup');
@@ -67,8 +70,8 @@ class ApiService {
 
   //Get Schedules
   Future<List<Schedule>> getSchedules(int farmerId) async {
-    final response = await http
-        .get(Uri.parse('$baseUrl/irrigation/schedule?farmerId=$farmerId'));
+    final response =
+        await http.get(Uri.parse('$baseUrl/$schedule?farmerId=$farmerId'));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((json) => Schedule.fromJson(json)).toList();
@@ -100,6 +103,22 @@ class ApiService {
     if (response.statusCode != 204) {
       print(response.body.toString());
       throw Exception('Failed to delete schedule');
+    }
+  }
+
+  //get soil data
+  Future<Map<String, dynamic>> getSoilAnalysis(int farmerId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$getSoil/$farmerId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(farmerId),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print(response.body.toString());
+      throw Exception('Failed to load soil analysis data');
     }
   }
 }
