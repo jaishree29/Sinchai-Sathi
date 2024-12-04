@@ -81,8 +81,7 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
     }
   }
 
-  //Create schedule
-
+  // Create schedule working fine
   void addSchedule(String startTime, String endTime, String repeat) async {
     final userId = await SLocalStorage().getUserId();
     print('User ID from local storage: $userId');
@@ -135,7 +134,7 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-            child: Padding(
+              child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +145,7 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
                       onChanged: (value) => toggleMotor(),
                     ),
                     const SizedBox(height: 20),
-            
+
                     // Schedule
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -176,7 +175,7 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-            
+
                     // List of schedules
                     ...schedules.map((schedule) {
                       return ScheduleListTile(
@@ -184,15 +183,15 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
                         onDelete: (id) => deleteSchedule(id),
                       );
                     }),
-            
+
                     const SizedBox(height: 20),
-            
+
                     // Water Savings
                     const WaterSavingChart(),
                   ],
                 ),
               ),
-          ),
+            ),
     );
   }
 }

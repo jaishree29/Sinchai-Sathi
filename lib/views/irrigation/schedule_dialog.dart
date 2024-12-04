@@ -10,18 +10,52 @@ class ScheduleDialog extends StatefulWidget {
 }
 
 class _ScheduleDialogState extends State<ScheduleDialog> {
-  TimeOfDay? _startTime;
-  TimeOfDay? _endTime;
+  DateTime? _startDateTime;
+  DateTime? _endDateTime;
   List<String> _selectedDays = [];
+
+  void _selectStartDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _startDateTime) {
+      setState(() {
+        _startDateTime = picked;
+      });
+    }
+  }
 
   void _selectStartTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (picked != null && picked != _startTime) {
+    if (picked != null && _startDateTime != null) {
       setState(() {
-        _startTime = picked;
+        _startDateTime = DateTime(
+          _startDateTime!.year,
+          _startDateTime!.month,
+          _startDateTime!.day,
+          picked.hour,
+          picked.minute,
+        );
+      });
+    }
+  }
+
+  void _selectEndDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _endDateTime) {
+      setState(() {
+        _endDateTime = picked;
       });
     }
   }
@@ -31,9 +65,15 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (picked != null && picked != _endTime) {
+    if (picked != null && _endDateTime != null) {
       setState(() {
-        _endTime = picked;
+        _endDateTime = DateTime(
+          _endDateTime!.year,
+          _endDateTime!.month,
+          _endDateTime!.day,
+          picked.hour,
+          picked.minute,
+        );
       });
     }
   }
@@ -66,13 +106,23 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
+            title: const Text('Start Date'),
+            trailing: Text(_startDateTime?.toString().split(' ')[0] ?? 'Select Date'),
+            onTap: _selectStartDate,
+          ),
+          ListTile(
             title: const Text('Start Time'),
-            trailing: Text(_startTime?.format(context) ?? 'Select Time'),
+            trailing: Text(_startDateTime != null ? _startDateTime!.toString().split(' ')[1].substring(0, 5) : 'Select Time'),
             onTap: _selectStartTime,
           ),
           ListTile(
+            title: const Text('End Date'),
+            trailing: Text(_endDateTime?.toString().split(' ')[0] ?? 'Select Date'),
+            onTap: _selectEndDate,
+          ),
+          ListTile(
             title: const Text('End Time'),
-            trailing: Text(_endTime?.format(context) ?? 'Select Time'),
+            trailing: Text(_endDateTime != null ? _endDateTime!.toString().split(' ')[1].substring(0, 5) : 'Select Time'),
             onTap: _selectEndTime,
           ),
           const Divider(),
@@ -97,11 +147,11 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
       actions: [
         ElevatedButton(
           onPressed: () {
-            if (_startTime != null &&
-                _endTime != null &&
+            if (_startDateTime != null &&
+                _endDateTime != null &&
                 _selectedDays.isNotEmpty) {
-              final startTime = _startTime!.format(context);
-              final endTime = _endTime!.format(context);
+              final startTime = _startDateTime!.toIso8601String();
+              final endTime = _endDateTime!.toIso8601String();
               final repeat = _selectedDays.join(', ');
               widget.onScheduleAdded(startTime, endTime, repeat);
               Navigator.pop(context);

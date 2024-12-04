@@ -152,7 +152,7 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("$label: ${doubleValue?.toStringAsFixed(1) ?? 'N/A'}%"),
+        Text("$label: ${doubleValue?.toStringAsFixed(1) ?? 'N/A'}"),
         const SizedBox(height: 5),
         LinearProgressIndicator(
           value: doubleValue != null ? (doubleValue / 100) : 0.0,

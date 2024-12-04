@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sinchai_sathi/models/schedule_model.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 
@@ -12,6 +13,18 @@ class ScheduleListTile extends StatelessWidget {
     required this.onDelete,
   });
 
+  String formatDateTime(String dateTimeString) {
+    try {
+      final dateTime = DateTime.parse(dateTimeString);
+      final dateFormat = DateFormat('dd MMM yyyy');
+      final timeFormat = DateFormat('hh:mm a');
+      return '${dateFormat.format(dateTime)} - ${timeFormat.format(dateTime)}';
+    } catch (e) {
+      print('Error parsing date: $e');
+      return 'Invalid Date';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -20,10 +33,9 @@ class ScheduleListTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: SColors.primary)
-        ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: SColors.primary)),
         padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -33,13 +45,13 @@ class ScheduleListTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Start: ${schedule.startTime}',
+                    'Start: ${formatDateTime(schedule.startTime)}',
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'End: ${schedule.endTime}',
+                    'End: ${formatDateTime(schedule.endTime)}',
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
