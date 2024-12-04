@@ -20,9 +20,9 @@ class ApiService {
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
-      final farmerId = responseBody['farmer']['id']; 
-      await SLocalStorage().saveUserId(farmerId.toString()); 
-      return User.fromJson(responseBody['farmer']); 
+      final farmerId = responseBody['farmer']['id'];
+      await SLocalStorage().saveUserId(farmerId.toString());
+      return User.fromJson(responseBody['farmer']);
     }
     // User already exists error
     else if (response.statusCode == 400) {
@@ -154,13 +154,15 @@ class ApiService {
     final response = await http.post(
       Uri.parse('$baseUrl/$getSoil/$farmerId'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(farmerId),
+      body: jsonEncode({'farmerId': farmerId}),
     );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      print(response.body.toString());
+      print(
+          'Failed to load soil analysis data. Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
       throw Exception('Failed to load soil analysis data');
     }
   }
