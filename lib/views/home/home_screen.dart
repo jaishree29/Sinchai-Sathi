@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _fetchWeatherData() async {
     try {
       final data = await ApiService().fetchWeatherData(
-          28.5726, 76.9344); // Farrukh Nagar, Gurgaon, Haryana coordinates
+          28.5726, 76.9344); // Farrukh Nagar, Gurgaon, Haryana 
       if (mounted) {
         setState(() {
           weatherData = data;
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       if (mounted) {
         setState(() {
-          weatherData = null; // Reset on error
+          weatherData = null; 
         });
       }
       print('Error fetching weather data: $e');
@@ -64,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen>
     _fetchUserDetails();
     _fetchWeatherData();
 
-    // Initialize date formatting
     formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
 
     _controller = AnimationController(
