@@ -26,8 +26,8 @@ class WeatherScreen extends StatelessWidget {
           } else {
             final data = snapshot.data!;
             final cityName = data['cityName'] ?? 'Farrukh Nagar';
-            final currentTemp = data['currentTemp'] ?? 0.0;
-            final currentCondition = data['currentCondition'] ?? 'Unknown';
+            final currentTemp = data['currentTemp'] ?? 17.0;
+            final currentCondition = data['currentCondition'] ?? 'Sunny';
             final highTemp = data['highTemp'] ?? 0.0;
             final lowTemp = data['lowTemp'] ?? 0.0;
             final forecast = data['forecasts'] ?? [];

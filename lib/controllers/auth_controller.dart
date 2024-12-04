@@ -8,10 +8,17 @@ class AuthController {
   final SLocalStorage _localStorage = SLocalStorage();
 
   Future<User> signup(User user) async {
-    final newUser = await _apiService.signup(user);
-    await _localStorage.saveUserName(newUser.name);
-    await _localStorage.saveUserId(newUser.id.toString());
-    return newUser;
+    try {
+      final newUser = await _apiService.signup(user);
+      await _localStorage.saveUserName(newUser.name);
+      await _localStorage.saveUserId(newUser.id.toString());
+      return newUser;
+    } on Exception catch (e) {
+      if (e.toString().contains('USER_ALREADY_EXISTS')) {
+        throw Exception('User already exists');
+      }
+      throw Exception('Signup failed. Please try again.');
+    }
   }
 
   Future<User> login(String contactNumber) async {

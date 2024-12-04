@@ -41,22 +41,32 @@ class _SignupScreenState extends State<SignupScreen> {
       final newUser = await _authController.signup(user);
       var sharedPref = await SharedPreferences.getInstance();
       sharedPref.setBool(SplashScreenState.loginKey, true);
-      print('User signed up: ${newUser.name}');
+
+      print('User signed up successfully: ${newUser.name}');
+
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const Navbar(),
         ),
       );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Welcome to Sinchai Sathi, ${newUser.name}'),
+          content: Text(
+            'Welcome to SInchai Sathi, ${newUser.name}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.right,
+          ),
         ),
       );
     } catch (e) {
-      print('Error signing up: $e');
+      // Log and display errors
+      print('Error during signup: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User already exists!'),
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
         ),
       );
     }

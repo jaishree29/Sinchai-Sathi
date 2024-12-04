@@ -20,15 +20,21 @@ class ApiService {
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
-      final farmerId = responseBody['id'];
-      await SLocalStorage().saveUserId(farmerId.toString());
-      return User.fromJson(jsonDecode(response.body));
-    } else if (response.statusCode == 400) {
-      print(response.body.toString());
-      throw Exception('User already exists');
-    } else {
-      print(response.body.toString());
-      throw Exception('Failed to signup');
+      final farmerId = responseBody['farmer']['id']; 
+      await SLocalStorage().saveUserId(farmerId.toString()); 
+      return User.fromJson(responseBody['farmer']); 
+    }
+    // User already exists error
+    else if (response.statusCode == 400) {
+      final errorMessage = jsonDecode(response.body)['error'];
+      if (errorMessage == 'User already exists') {
+        throw Exception('User already exists');
+      }
+      throw Exception('Invalid request: $errorMessage');
+    }
+    // For all other cases
+    else {
+      throw Exception('Failed to signup. Status Code: ${response.statusCode}');
     }
   }
 
