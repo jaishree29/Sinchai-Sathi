@@ -3,8 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
 
 class WeatherScreen extends StatelessWidget {
-
-
   const WeatherScreen({super.key});
 
   @override
@@ -12,10 +10,10 @@ class WeatherScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Weather App'),
-        centerTitle: true,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: ApiService().fetchWeatherData(34, -34),
+        future: ApiService().fetchWeatherData(
+            28.5726, 76.9344),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -25,12 +23,17 @@ class WeatherScreen extends StatelessWidget {
             return const Center(child: Text('No data available'));
           } else {
             final data = snapshot.data!;
-            final cityName = data['cityName'] ?? 'Farrukh Nagar';
-            final currentTemp = data['currentTemp'] ?? 17.0;
-            final currentCondition = data['currentCondition'] ?? 'Sunny';
-            final highTemp = data['highTemp'] ?? 0.0;
-            final lowTemp = data['lowTemp'] ?? 0.0;
+            final cityName = data['message'] ?? 'Farrukh Nagar';
+            final currentTemp =
+                data['forecasts'][0]['extra']['main']['temp'] ?? 17.0;
+            final currentCondition = data['forecasts'][0]['weather'] ?? 'Sunny';
+            final highTemp =
+                data['forecasts'][0]['extra']['main']['temp_max'] ?? 0.0;
+            final lowTemp =
+                data['forecasts'][0]['extra']['main']['temp_min'] ?? 0.0;
             final forecast = data['forecasts'] ?? [];
+            final currentWeatherIcon = _getWeatherIcon(
+                data['forecasts'][0]['extra']['weather'][0]['icon']);
 
             return Padding(
               padding: const EdgeInsets.all(16.0),
@@ -40,14 +43,14 @@ class WeatherScreen extends StatelessWidget {
                   Text(
                     "$cityName, ${currentTemp.toStringAsFixed(0)}°C",
                     style: const TextStyle(
-                        fontSize: 32, fontWeight: FontWeight.bold),
+                        fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   Center(
                     child: Column(
                       children: [
-                        const Icon(
-                          Icons.wb_sunny,
+                        Icon(
+                          currentWeatherIcon,
                           size: 100,
                           color: Colors.orange,
                         ),

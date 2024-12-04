@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:sinchai_sathi/services/api_service.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/utils/local_storage.dart';
 import 'package:sinchai_sathi/views/alerts/notifications.dart';
@@ -25,18 +27,46 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isDrawerOpen = false;
 
   String userName = '';
+  Map<String, dynamic>? weatherData;
+  late String formattedDate;
 
   Future<void> _fetchUserDetails() async {
     String? name = await SLocalStorage().getUserName();
-    setState(() {
-      userName = name ?? '';
-    });
+    if (mounted) {
+      setState(() {
+        userName = name ?? '';
+      });
+    }
+  }
+
+  Future<void> _fetchWeatherData() async {
+    try {
+      final data = await ApiService().fetchWeatherData(
+          28.5726, 76.9344); // Farrukh Nagar, Gurgaon, Haryana coordinates
+      if (mounted) {
+        setState(() {
+          weatherData = data;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          weatherData = null; // Reset on error
+        });
+      }
+      print('Error fetching weather data: $e');
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _fetchUserDetails();
+    _fetchWeatherData();
+
+    // Initialize date formatting
+    formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -140,9 +170,6 @@ class _HomeScreenState extends State<HomeScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // const SizedBox(
-                  //   height: 10.0,
-                  // ),
                   const Text(
                     "Dashboard",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -182,21 +209,27 @@ class _HomeScreenState extends State<HomeScreen>
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            "Gurugram, 4 December",
+                            weatherData != null
+                                ? "Farrukh Nagar, $formattedDate"
+                                : "Gurugram, 4 December",
                             style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w500),
                           ),
                           Text(
-                            "17° C",
+                            weatherData != null
+                                ? "${weatherData!['forecasts'][0]['extra']['main']['temp'].toStringAsFixed(0)}° C"
+                                : "17° C",
                             style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontSize: 30.0,
+                                fontSize: 25.0,
                                 fontWeight: FontWeight.w500),
                           ),
                           Text(
-                            "Perception of rain: 14%",
+                            weatherData != null
+                                ? "Perception of rain: ${weatherData!['forecasts'][0]['extra']['pop'] * 100}%"
+                                : "Perception of rain: 14%",
                             style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 12.0,
@@ -209,63 +242,6 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                   ),
-                  // SContainer(
-                  //   icon: Icons.clean_hands_sharp,
-                  //   child: Column(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  //     children: [
-                  //       Row(
-                  //         children: [
-                  //           const Icon(
-                  //             Icons.upload,
-                  //             color: Colors.white,
-                  //           ),
-                  //           const SizedBox(
-                  //             width: 21.0,
-                  //           ),
-                  //           Text("Upload picture of crop",
-                  //               style: GoogleFonts.poppins(
-                  //                   color: Colors.white,
-                  //                   fontSize: 12.0,
-                  //                   fontWeight: FontWeight.w500)),
-                  //         ],
-                  //       ),
-                  //       Row(
-                  //         children: [
-                  //           const Icon(
-                  //             Icons.search_outlined,
-                  //             color: Colors.white,
-                  //           ),
-                  //           const SizedBox(
-                  //             width: 21.0,
-                  //           ),
-                  //           Text("See Diagnosis",
-                  //               style: GoogleFonts.poppins(
-                  //                   color: Colors.white,
-                  //                   fontSize: 12.0,
-                  //                   fontWeight: FontWeight.w500)),
-                  //         ],
-                  //       ),
-                  //       Row(
-                  //         children: [
-                  //           const Icon(
-                  //             Icons.clean_hands_sharp,
-                  //             color: Colors.white,
-                  //           ),
-                  //           const SizedBox(
-                  //             width: 21.0,
-                  //           ),
-                  //           Text("Get Treatment",
-                  //               style: GoogleFonts.poppins(
-                  //                   color: Colors.white,
-                  //                   fontSize: 12.0,
-                  //                   fontWeight: FontWeight.w500)),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   InkWell(
                     onTap: () => Navigator.push(
                       context,
@@ -291,7 +267,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 child: Text(
                                   "Soil Analysis",
                                   style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600, fontSize: 20.0),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20.0),
                                 ),
                               ),
                             ),
@@ -308,14 +285,15 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       const Text(
                         "About Crops",
-                        style:
-                            TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const AboutCropsScreen())),
+                                builder: (context) =>
+                                    const AboutCropsScreen())),
                         child: const Text(
                           "See all",
                           style: TextStyle(
