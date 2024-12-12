@@ -5,10 +5,10 @@ import 'package:sinchai_sathi/sinchai_sathi/services/api_service.dart';
 import 'package:sinchai_sathi/sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/sinchai_sathi/utils/local_storage.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/alerts/notifications.dart';
-import 'package:sinchai_sathi/sinchai_sathi/views/analysis/soil_analysis.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/home/about_crops_screen.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/home/app_drawer.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/irrigation/irrigation_screen.dart';
+import 'package:sinchai_sathi/sinchai_sathi/views/soil.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/weather/weather_screen.dart';
 import 'package:sinchai_sathi/sinchai_sathi/widgets/circular_container.dart';
 import 'package:sinchai_sathi/sinchai_sathi/widgets/container.dart';
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _fetchWeatherData() async {
     try {
       final data = await ApiService().fetchWeatherData(
-          28.5726, 76.9344); // Farrukh Nagar, Gurgaon, Haryana 
+          28.5726, 76.9344); // Farrukh Nagar, Gurgaon, Haryana
       if (mounted) {
         setState(() {
           weatherData = data;
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       if (mounted) {
         setState(() {
-          weatherData = null; 
+          weatherData = null;
         });
       }
       print('Error fetching weather data: $e');
@@ -209,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen>
                         children: [
                           Text(
                             weatherData != null
-                                ? "Farrukh Nagar, $formattedDate"
+                                ? formattedDate
                                 : "Gurugram, 4 December",
                             style: GoogleFonts.poppins(
                                 color: Colors.white,
@@ -245,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen>
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SoilAnalysis(),
+                        builder: (context) => const Soil(),
                       ),
                     ),
                     child: SContainer(
@@ -289,14 +289,17 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       GestureDetector(
                         onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const AboutCropsScreen())),
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AboutCropsScreen(),
+                          ),
+                        ),
                         child: const Text(
                           "See all",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],

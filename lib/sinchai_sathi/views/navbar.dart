@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:sinchai_sathi/sinchai_sathi/utils/colors.dart';
-import 'package:sinchai_sathi/sinchai_sathi/views/analysis/soil_analysis.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/home/home_screen.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/irrigation/irrigation_screen.dart';
-import 'package:sinchai_sathi/sinchai_sathi/views/market/market_screen.dart';
+import 'package:sinchai_sathi/sinchai_sathi/views/soil.dart';
 import 'package:sinchai_sathi/sinchai_sathi/views/weather/weather_screen.dart';
 
 class Navbar extends StatefulWidget {
@@ -22,8 +21,8 @@ class _NavbarState extends State<Navbar> {
       const HomeScreen(),
       const WeatherScreen(),
       const IrrigationScreen(),
-      const MarketScreen(),
-      const SoilAnalysis(),
+      const Soil(),
+      const Soil(),
     ];
     return Scaffold(
       bottomNavigationBar: ConvexAppBar(
