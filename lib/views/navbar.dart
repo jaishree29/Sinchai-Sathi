@@ -4,7 +4,7 @@ import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/views/analysis/soil_analysis.dart';
 import 'package:sinchai_sathi/views/home/home_screen.dart';
 import 'package:sinchai_sathi/views/irrigation/irrigation_screen.dart';
-import 'package:sinchai_sathi/views/market/market_screen.dart';
+import 'package:sinchai_sathi/views/market/crop_price_screen.dart';
 import 'package:sinchai_sathi/views/weather/weather_screen.dart';
 
 class Navbar extends StatefulWidget {
@@ -22,7 +22,7 @@ class _NavbarState extends State<Navbar> {
       const HomeScreen(),
       const WeatherScreen(),
       const IrrigationScreen(),
-      const MarketScreen(),
+      const CropPriceScreen(),
       const SoilAnalysis(),
     ];
     return Scaffold(

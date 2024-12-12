@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 
-class MarketScreen extends StatelessWidget {
-  const MarketScreen({super.key});
+class CropPriceScreen extends StatelessWidget {
+  const CropPriceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

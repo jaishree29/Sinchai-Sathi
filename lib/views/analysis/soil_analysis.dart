@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
@@ -14,11 +15,21 @@ class SoilAnalysis extends StatefulWidget {
 class _SoilAnalysisState extends State<SoilAnalysis> {
   bool isLoading = true;
   Map<String, dynamic> soilData = {};
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     fetchSoilData();
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      fetchSoilData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> fetchSoilData() async {

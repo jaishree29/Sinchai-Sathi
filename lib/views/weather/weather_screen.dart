@@ -2,9 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
 
-class WeatherScreen extends StatelessWidget {
+class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
 
+  @override
+  State<WeatherScreen> createState() => _WeatherScreenState();
+}
+
+class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProviderStateMixin {
+  late String formattedDate;
+
+  @override
+  void initState() {
+    formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,7 +25,7 @@ class WeatherScreen extends StatelessWidget {
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: ApiService().fetchWeatherData(
-            28.5726, 76.9344),
+            23.184277, 77.327422),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -23,7 +35,7 @@ class WeatherScreen extends StatelessWidget {
             return const Center(child: Text('No data available'));
           } else {
             final data = snapshot.data!;
-            final cityName = data['message'] ?? 'Farrukh Nagar';
+            final cityName = 'Kalkhera, Bhopal\n$formattedDate';
             final currentTemp =
                 data['forecasts'][0]['extra']['main']['temp'] ?? 17.0;
             final currentCondition = data['forecasts'][0]['weather'] ?? 'Sunny';
@@ -41,9 +53,14 @@ class WeatherScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "$cityName, ${currentTemp.toStringAsFixed(0)}°C",
+                    "${currentTemp.toStringAsFixed(0)}°C",
                     style: const TextStyle(
                         fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    cityName,
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   Center(

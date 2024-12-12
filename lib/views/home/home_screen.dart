@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _fetchWeatherData() async {
     try {
       final data = await ApiService().fetchWeatherData(
-          28.5726, 76.9344); // Farrukh Nagar, Gurgaon, Haryana 
+          23.184277, 77.327422); // Kalkhera, Bhopal, MP 
       if (mounted) {
         setState(() {
           weatherData = data;
@@ -209,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen>
                         children: [
                           Text(
                             weatherData != null
-                                ? "Farrukh Nagar, $formattedDate"
+                                ? "Kalkhera, Bhopal\n$formattedDate"
                                 : "Gurugram, 4 December",
                             style: GoogleFonts.poppins(
                                 color: Colors.white,
