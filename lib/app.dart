@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sinchai_sathi/sinchai_sathi/views/splash_screen.dart';
+import 'package:sinchai_sathi/views/splash_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
