@@ -62,7 +62,6 @@ class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProvider
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 16),
                   Center(
                     child: Column(
                       children: [
