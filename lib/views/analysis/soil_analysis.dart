@@ -39,7 +39,11 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
       final data = await apiService.getSoilAnalysis(int.parse('$farmerId'));
       print("Successfully fetched analysis:");
       setState(() {
-        soilData = data;
+        soilData = {
+          ...data,
+          'waterRequired': (data['waterRequired'] ?? 0) / 1000,
+          'irrigationDuration': (data['irrigationDuration'] / 60000 ?? 0).toInt(),
+        };
         isLoading = false;
       });
     } catch (e) {
@@ -108,13 +112,13 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
                           ),
                           TextSpan(
                             text: soilData['waterRequired'] != null
-                                ? '${soilData['waterRequired']}'
+                                ? '${soilData['waterRequired']} L'
                                 : 'N/A',
                             style: const TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -130,13 +134,13 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
                           ),
                           TextSpan(
                             text: soilData['irrigationDuration'] != null
-                                ? '${soilData['irrigationDuration']}'
+                                ? '${soilData['irrigationDuration']} min'
                                 : 'N/A',
                             style: const TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
