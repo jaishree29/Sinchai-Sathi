@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
+import 'package:intl/intl.dart';
 
 class CropPriceScreen extends StatelessWidget {
-  const CropPriceScreen({super.key});
+  final String image;
+  final String name;
+  final double price;
+  final int priceChange;
+
+  const CropPriceScreen({
+    super.key,
+    required this.image,
+    required this.name,
+    required this.price,
+    required this.priceChange,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final String currentDate = DateFormat('d MMM yyyy').format(DateTime.now());
+
     // Sample data
-    const String cropName = "Paddy Basmati";
-    const String date = "30 Nov 2024";
-    const String location = "Gurugram";
-    const String price = "₹2135/Q";
-    const String changePercentage = "+0.48%";
+    const String location = "Kalkheda, Bhopal";
+    final String priceText = "₹${price.toStringAsFixed(0)}/Q";
+    final String changePercentage =
+        "${priceChange >= 0 ? '+' : ''}${priceChange}%";
 
     // Past prices data
     final List<Map<String, dynamic>> pastPrices = [
@@ -37,13 +50,14 @@ class CropPriceScreen extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  cropName,
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Text(
+                  name,
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "$date | $location",
+                  "$currentDate | $location",
                   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
               ],
@@ -54,18 +68,17 @@ class CropPriceScreen extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Price: $price",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                Text(
+                  "Price: $priceText",
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   changePercentage,
                   style: TextStyle(
                     fontSize: 16,
-                    color: changePercentage.startsWith("+")
-                        ? Colors.green
-                        : Colors.red,
+                    color: priceChange >= 0 ? Colors.green : Colors.red,
                   ),
                 ),
               ],
@@ -181,8 +194,8 @@ class CropPriceScreen extends StatelessWidget {
                             color: SColors.primary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child:
-                              const Icon(Icons.trending_up, color: SColors.primary),
+                          child: const Icon(Icons.trending_up,
+                              color: SColors.primary),
                         ),
                         const SizedBox(width: 16),
 

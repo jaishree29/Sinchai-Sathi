@@ -13,6 +13,25 @@ class SAppDrawer extends StatefulWidget {
 }
 
 class _SAppDrawerState extends State<SAppDrawer> {
+  String? username;
+  String? userId;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    fetchUserName();
+    super.initState();
+  }
+
+  void fetchUserName() async {
+    String? name = await SLocalStorage().getUserName();
+    String? user = await SLocalStorage().getUserId();
+    setState(() {
+      username = name;
+      userId = user;
+    });
+  }
+
   // User log out
   Future<void> _userLogOut() async {
     var sharedPref = await SharedPreferences.getInstance();
@@ -45,13 +64,13 @@ class _SAppDrawerState extends State<SAppDrawer> {
                 height: 30,
               ),
               ListTile(
-                leading: const Icon(Icons.dashboard),
-                title: const Text('Activity'),
+                leading: const Icon(Icons.person_pin_rounded),
+                title: Text('User Id: $userId'),
                 onTap: () {},
               ),
               ListTile(
-                leading: const Icon(Icons.history),
-                title: const Text('Order history'),
+                leading: const Icon(Icons.person),
+                title: Text('$username'),
                 onTap: () {},
               ),
               ListTile(
