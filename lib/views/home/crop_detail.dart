@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/utils/crop_details.dart';
 import 'package:sinchai_sathi/widgets/list_item.dart';
 
@@ -13,6 +14,9 @@ class CropDetail extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: SColors.primary,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         title: Text(title),
       ),

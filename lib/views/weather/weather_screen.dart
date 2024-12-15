@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
+import 'package:sinchai_sathi/utils/colors.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -21,6 +22,9 @@ class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: SColors.primary,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         title: const Text('Weather App'),
       ),
       body: FutureBuilder<Map<String, dynamic>>(

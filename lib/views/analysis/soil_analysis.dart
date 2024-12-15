@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/utils/local_storage.dart';
@@ -53,33 +52,15 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
           "farmerName": farmerName,
           "location": "No data available",
           "cropType": "No data available",
-          "npk": {
-            "nitrogen": 0.0,
-            "phosphorus": 0.0,
-            "potassium": 0.0,
-          },
           "moisture": 0.0,
-          "lowNutrient": "",
-          "reportDate": "",
+          "humidity": 0.0,
+          "flow": 0,
+          "irrigationDuration": 0,
+          "waterRequired": 0,
         };
         isLoading = false;
       });
     }
-  }
-
-  String formatDate(String date) {
-    return DateFormat('dd MMMM yyyy').format(DateTime.parse(date));
-  }
-
-  Map<String, dynamic> getSoilHealth() {
-    if (soilData['lowNutrient'] == null || soilData['lowNutrient'] == "") {
-      return {"status": "not available", "color": Colors.red};
-    }
-    return soilData['lowNutrient'] == "nitrogen" ||
-            soilData['lowNutrient'] == "phosphorus" ||
-            soilData['lowNutrient'] == "potassium"
-        ? {"status": "Moderate", "color": Colors.orange}
-        : {"status": "Bad", "color": Colors.red};
   }
 
   @override
@@ -87,52 +68,88 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Soil Analysis"),
+        backgroundColor: SColors.primary,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Soil Analysis Status",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildProgressBar("Moisture", soilData['moisture']),
-                  _buildProgressBar("Nitrogen", soilData['npk']['nitrogen']),
-                  _buildProgressBar(
-                      "Phosphorus", soilData['npk']['phosphorus']),
-                  _buildProgressBar("Potassium", soilData['npk']['potassium']),
-                  _buildNPKStatus(soilData['npk']),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Soil Health",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Text(
-                        "Your soil status is ",
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
+            : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Analysis Status",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildProgressBar("Moisture%", soilData['moisture']),
+                    _buildProgressBar("Humidity%", soilData['humidity']),
+                    _buildProgressBar("Flow of Water (mL/s)", soilData['flow']),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Your plant needs:",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Water Requirement: ',
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          TextSpan(
+                            text: soilData['waterRequired'] != null
+                                ? '${soilData['waterRequired']}'
+                                : 'N/A',
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        ],
                       ),
-                      Text(
-                        getSoilHealth()['status'],
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: getSoilHealth()['color'],
-                        ),
+                    ),
+                    const SizedBox(height: 5),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Total irrigation duration: ',
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          TextSpan(
+                            text: soilData['irrigationDuration'] != null
+                                ? '${soilData['irrigationDuration']}'
+                                : 'N/A',
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: GridView.count(
+                    ),
+                    const SizedBox(height: 30),
+                    const Text(
+                      "About crop:",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
@@ -141,18 +158,12 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
                         _buildGridItem("Moisture", "${soilData['moisture']}%"),
                         _buildGridItem("Crop Type", soilData['cropType']),
                         _buildGridItem("Farmer Name", soilData['farmerName']),
-                        _buildGridItem(
-                          "Report date",
-                          soilData['reportDate'] == ''
-                              ? 'No data available'
-                              : formatDate(
-                                  soilData['reportDate'],
-                                ),
-                        ),
+                        _buildGridItem("Location", soilData['location']),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
       ),
     );
@@ -174,64 +185,6 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
         const SizedBox(height: 15),
       ],
     );
-  }
-
-  Widget _buildNPKStatus(Map<String, dynamic> npk) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text("Nitrogen: "),
-            Text(
-              _getNutrientStatus(npk['nitrogen'])['status'],
-              style: TextStyle(
-                color: _getNutrientStatus(npk['nitrogen'])['color'],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            const Text("Phosphorus: "),
-            Text(
-              _getNutrientStatus(npk['phosphorus'])['status'],
-              style: TextStyle(
-                color: _getNutrientStatus(npk['phosphorus'])['color'],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            const Text("Potassium: "),
-            Text(
-              _getNutrientStatus(npk['potassium'])['status'],
-              style: TextStyle(
-                color: _getNutrientStatus(npk['potassium'])['color'],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Map<String, dynamic> _getNutrientStatus(dynamic value) {
-    double? doubleValue = value is int ? value.toDouble() : value as double?;
-    if (doubleValue == null || doubleValue == 0.0) {
-      return {"status": "No data available", "color": Colors.grey};
-    }
-    if (doubleValue >= 15) {
-      return {"status": "High", "color": Colors.green};
-    }
-    if (doubleValue >= 10) {
-      return {"status": "Medium", "color": Colors.orange};
-    }
-    return {"status": "Low", "color": Colors.red};
   }
 
   Widget _buildGridItem(String label, String value) {

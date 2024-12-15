@@ -123,6 +123,9 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: SColors.primary,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         title: const Text('Water Scheduling'),
         actions: [
           IconButton(

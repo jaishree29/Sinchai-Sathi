@@ -44,7 +44,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
       print('User signed up successfully: ${newUser.name}');
 
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const Navbar(),
         ),

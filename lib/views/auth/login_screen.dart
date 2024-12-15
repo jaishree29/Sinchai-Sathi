@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
       var sharedPref = await SharedPreferences.getInstance();
       sharedPref.setBool(SplashScreenState.loginKey, true);
       print('User logged in: ${user.name}');
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const Navbar(),
         ),
