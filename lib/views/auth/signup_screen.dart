@@ -22,6 +22,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _cropTypeController = TextEditingController();
   final TextEditingController _pumpWattController = TextEditingController();
+  final TextEditingController _irrigationStateController =
+      TextEditingController();
   bool _isLoading = false;
 
   Future<void> _signup() async {
@@ -34,7 +36,7 @@ class _SignupScreenState extends State<SignupScreen> {
         location: _locationController.text,
         cropType: _cropTypeController.text,
         waterPumpWatt: int.parse(_pumpWattController.text),
-        irrigationState: 'off',
+        irrigationState: _irrigationStateController.text,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -68,18 +70,34 @@ class _SignupScreenState extends State<SignupScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset("assets/logos/hero1.png"),
-                    const SizedBox(
-                      height: 30,
-                    ),
                     Text(
-                      "Signup",
+                      "Sinchai Sathi",
                       style: GoogleFonts.poppins(
-                          fontSize: 30.0, fontWeight: FontWeight.bold),
+                        fontSize: 25.0,
+                        color: SColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Text(
+                      "Let's help you start your journey as a farmer with us!",
+                      style: GoogleFonts.poppins(
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Please fill in all the details below.",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
                     const SizedBox(
-                      height: 20,
+                      height: 25,
                     ),
                     STextField(
                       labelText: 'Name',
@@ -105,14 +123,20 @@ class _SignupScreenState extends State<SignupScreen> {
                       labelText: 'Water Pump Watt',
                       controller: _pumpWattController,
                     ),
-
+                    const SizedBox(height: 10),
+                    STextField(
+                      labelText: 'Irrigation State',
+                      controller: _irrigationStateController,
+                    ),
                     const SizedBox(height: 30),
                   ],
                 ),
-                _isLoading ? const CircularProgressIndicator() : SElevatedButton(
-                  text: 'Signup',
-                  onPressed: _signup,
-                ),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : SElevatedButton(
+                        text: 'Signup',
+                        onPressed: _signup,
+                      ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
