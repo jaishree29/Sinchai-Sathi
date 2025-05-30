@@ -37,7 +37,7 @@ class _SAppDrawerState extends State<SAppDrawer> {
     var sharedPref = await SharedPreferences.getInstance();
     sharedPref.setBool(SplashScreenState.loginKey, false);
 
-    SLocalStorage().clearAll();
+    SLocalStorage().clearAuthData();
 
     if (!mounted) return;
 

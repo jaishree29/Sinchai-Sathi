@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sinchai_sathi/controllers/auth_controller.dart';
 import 'package:sinchai_sathi/models/user.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/views/auth/login_screen.dart';
 import 'package:sinchai_sathi/views/navbar.dart';
-import 'package:sinchai_sathi/views/splash_screen.dart';
 import 'package:sinchai_sathi/widgets/elevated_button.dart';
 import 'package:sinchai_sathi/widgets/textfield.dart';
 
@@ -20,55 +18,42 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final AuthController _authController = AuthController();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _contactNumberController =
-      TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _cropTypeController = TextEditingController();
-  final TextEditingController _waterPumpWattController =
-      TextEditingController();
+  final TextEditingController _pumpWattController = TextEditingController();
+  bool _isLoading = false;
 
   Future<void> _signup() async {
-    final user = User(
-      name: _nameController.text,
-      contactNumber: _contactNumberController.text,
-      location: _locationController.text,
-      cropType: _cropTypeController.text,
-      waterPumpWatt: int.parse(_waterPumpWattController.text),
-      irrigationState: 'off',
-    );
-
+    setState(() => _isLoading = true);
     try {
-      final newUser = await _authController.signup(user);
-      var sharedPref = await SharedPreferences.getInstance();
-      sharedPref.setBool(SplashScreenState.loginKey, true);
-
-      print('User signed up successfully: ${newUser.name}');
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const Navbar(),
-        ),
+      final farmer = Farmer(
+        id: '',
+        name: _nameController.text,
+        contactNumber: _contactController.text,
+        location: _locationController.text,
+        cropType: _cropTypeController.text,
+        waterPumpWatt: int.parse(_pumpWattController.text),
+        irrigationState: 'off',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Welcome to SInchai Sathi, ${newUser.name}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      );
+      await _authController.signup(farmer);
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Navbar()),
+        );
+      }
     } catch (e) {
-      // Log and display errors
-      print('Error during signup: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -102,8 +87,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 10),
                     STextField(
-                        labelText: 'Contact Number',
-                        controller: _contactNumberController),
+                      labelText: 'Contact Number',
+                      controller: _contactController,
+                    ),
                     const SizedBox(height: 10),
                     STextField(
                       labelText: 'Location',
@@ -117,12 +103,13 @@ class _SignupScreenState extends State<SignupScreen> {
                     const SizedBox(height: 10),
                     STextField(
                       labelText: 'Water Pump Watt',
-                      controller: _waterPumpWattController,
+                      controller: _pumpWattController,
                     ),
+
                     const SizedBox(height: 30),
                   ],
                 ),
-                SElevatedButton(
+                _isLoading ? const CircularProgressIndicator() : SElevatedButton(
                   text: 'Signup',
                   onPressed: _signup,
                 ),

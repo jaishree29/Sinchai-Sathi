@@ -2,60 +2,60 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sinchai_sathi/models/schedule_model.dart';
 import 'package:sinchai_sathi/utils/api_endpoints.dart';
-import 'package:sinchai_sathi/utils/local_storage.dart';
 import '../models/user.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://sichaisathi.onrender.com';
+  static const String baseUrl = 'https://ladybird-frank-deeply.ngrok-free.app';
 
   //Sign Up is working fine
-  Future<User> signup(User user) async {
+  Future<User> signup(Farmer farmer) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$createFarmer'),
       headers: {
         'Content-Type': 'application/json',
       },
-      body: jsonEncode(user.toJson()),
+      body: jsonEncode(farmer.toJson()),
     );
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
-      final farmerId = responseBody['farmer']['id'];
-      await SLocalStorage().saveUserId(farmerId.toString());
-      return User.fromJson(responseBody['farmer']);
-    }
-    // User already exists error
-    else if (response.statusCode == 400) {
-      final errorMessage = jsonDecode(response.body)['error'];
-      if (errorMessage == 'User already exists') {
-        throw Exception('User already exists');
+      // Extract tokens from headers
+      final token = response.headers['authorization'];
+      final refreshToken = response.headers['refresh-token'];
+
+      if (token == null || refreshToken == null) {
+        throw Exception('Authentication tokens not received');
       }
-      throw Exception('Invalid request: $errorMessage');
-    }
-    // For all other cases
-    else {
-      throw Exception('Failed to signup. Status Code: ${response.statusCode}');
+
+      return User.fromJson({
+        ...responseBody,
+        'token': token.replaceFirst('Bearer ', ''),
+        'refreshToken': refreshToken,
+      });
+    } else {
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['error'] ?? 'Failed to signup');
     }
   }
 
-  //Login is working fine
   Future<User> login(String contactNumber) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$getFarmer'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'contactNumber': contactNumber}),
     );
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
-      final farmerId = responseBody['id'];
-      await SLocalStorage().saveUserId(farmerId.toString());
-      return User.fromJson(responseBody);
+      return User.fromJson({
+        ...responseBody,
+        'token': response.headers['authorization']?.replaceFirst('Bearer ', ''),
+        'refreshToken': response.headers['refresh-token'],
+      });
+    } else if (response.statusCode == 404) {
+      throw Exception('Farmer not found');
     } else {
-      print(response.body.toString());
-      throw Exception('Failed to login');
+      throw Exception('Failed to login: ${response.body}');
     }
   }
 

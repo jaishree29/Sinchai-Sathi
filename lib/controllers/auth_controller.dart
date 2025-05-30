@@ -1,5 +1,4 @@
 import 'package:sinchai_sathi/utils/local_storage.dart';
-
 import '../models/user.dart';
 import '../services/api_service.dart';
 
@@ -7,24 +6,43 @@ class AuthController {
   final ApiService _apiService = ApiService();
   final SLocalStorage _localStorage = SLocalStorage();
 
-  Future<User> signup(User user) async {
+  Future<User> signup(Farmer farmer) async {
     try {
-      final newUser = await _apiService.signup(user);
-      await _localStorage.saveUserName(newUser.name);
-      await _localStorage.saveUserId(newUser.id.toString());
-      return newUser;
-    } on Exception catch (e) {
-      if (e.toString().contains('USER_ALREADY_EXISTS')) {
-        throw Exception('User already exists');
-      }
-      throw Exception('Signup failed. Please try again.');
+      final user = await _apiService.signup(farmer);
+      await _localStorage.saveAuthData(
+        token: user.token!,
+        refreshToken: user.refreshToken!,
+        userId: user.farmer.id,
+        userName: user.farmer.name,
+      );
+      return user;
+    } on Exception {
+      // Clear any partial data if signup failed
+      await _localStorage.clearAuthData();
+      rethrow;
     }
   }
 
   Future<User> login(String contactNumber) async {
-    final user = await _apiService.login(contactNumber);
-    await _localStorage.saveUserName(user.name);
-    await _localStorage.saveUserId(user.id.toString());
-    return user;
+    try {
+      final response = await _apiService.login(contactNumber);
+      await _localStorage.saveAuthData(
+        token: response.token!,
+        refreshToken: response.refreshToken!,
+        userId: response.farmer.id,
+        userName: response.farmer.name,
+      );
+      return response;
+    } catch (e) {
+      throw Exception('Login failed: ${e.toString()}');
+    }
+  }
+
+  Future<void> logout() async {
+    await _localStorage.clearAuthData();
+  }
+
+  Future<bool> isLoggedIn() async {
+    return await _localStorage.isLoggedIn();
   }
 }
