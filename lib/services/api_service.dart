@@ -1,11 +1,31 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sinchai_sathi/models/schedule_model.dart';
+import 'package:sinchai_sathi/models/weather_model.dart';
 import 'package:sinchai_sathi/utils/api_endpoints.dart';
 import '../models/user.dart';
 
 class ApiService {
   static const String baseUrl = 'https://ladybird-frank-deeply.ngrok-free.app';
+  static const String weatherUrl = 'http://api.weatherstack.com';
+  static const String _accessKey = 'e76f2464824f64b3531249c16c05df2a';
+
+    Future<WeatherData> fetchWeatherData(String location) async {
+    final response = await http.get(
+      Uri.parse('$weatherUrl/current?access_key=$_accessKey&query=$location'),
+    );
+
+    if (response.statusCode == 200) {
+      return WeatherData.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load weather data');
+    }
+  }
+
+  Future<WeatherData> fetchWeatherForUser(String userId) async {
+    final user = await login(userId);
+    return fetchWeatherData(user.farmer.location);
+  }
 
   //Sign Up is working fine
   Future<User> signup(Farmer farmer) async {
@@ -167,17 +187,17 @@ class ApiService {
     }
   }
 
-  //fetch weather data is working fine
-  Future<Map<String, dynamic>> fetchWeatherData(double lat, double lon) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/v1/weather?lat=$lat&lon=$lon'),
-    );
+  // //fetch weather data is working fine
+  // Future<Map<String, dynamic>> fetchWeatherData(double lat, double lon) async {
+  //   final response = await http.get(
+  //     Uri.parse('$baseUrl/api/v1/weather?lat=$lat&lon=$lon'),
+  //   );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      print(response.body.toString());
-      throw Exception('Failed to fetch weather data');
-    }
-  }
+  //   if (response.statusCode == 200) {
+  //     return jsonDecode(response.body);
+  //   } else {
+  //     print(response.body.toString());
+  //     throw Exception('Failed to fetch weather data');
+  //   }
+  // }
 }

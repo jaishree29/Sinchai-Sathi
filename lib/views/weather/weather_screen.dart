@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:sinchai_sathi/models/weather_model.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
+import 'package:sinchai_sathi/utils/local_storage.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -10,14 +12,23 @@ class WeatherScreen extends StatefulWidget {
   State<WeatherScreen> createState() => _WeatherScreenState();
 }
 
-class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProviderStateMixin {
+class _WeatherScreenState extends State<WeatherScreen> {
   late String formattedDate;
+  late Future<WeatherData> weatherDataFuture;
 
   @override
   void initState() {
-    formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
     super.initState();
+    formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
+    weatherDataFuture = _loadWeatherData();
   }
+
+  Future<WeatherData> _loadWeatherData() async {
+    final localStorage = SLocalStorage();
+    final userId = await localStorage.getUserId();
+    return ApiService().fetchWeatherForUser(userId!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,9 +38,8 @@ class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProvider
         surfaceTintColor: Colors.transparent,
         title: const Text('Weather App'),
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: ApiService().fetchWeatherData(
-            23.184277, 77.327422),
+      body: FutureBuilder<WeatherData>(
+        future: weatherDataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -38,18 +48,9 @@ class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProvider
           } else if (!snapshot.hasData) {
             return const Center(child: Text('No data available'));
           } else {
-            final data = snapshot.data!;
-            final cityName = 'Kalkhera, Bhopal\n$formattedDate';
-            final currentTemp =
-                data['forecasts'][0]['extra']['main']['temp'] ?? 17.0;
-            final currentCondition = data['forecasts'][0]['weather'] ?? 'Sunny';
-            final highTemp =
-                data['forecasts'][0]['extra']['main']['temp_max'] ?? 0.0;
-            final lowTemp =
-                data['forecasts'][0]['extra']['main']['temp_min'] ?? 0.0;
-            final forecast = data['forecasts'] ?? [];
-            final currentWeatherIcon = _getWeatherIcon(
-                data['forecasts'][0]['extra']['weather'][0]['icon']);
+            final weatherData = snapshot.data!;
+            final location = weatherData.location;
+            final current = weatherData.current;
 
             return Padding(
               padding: const EdgeInsets.all(16.0),
@@ -57,25 +58,25 @@ class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProvider
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${currentTemp.toStringAsFixed(0)}°C",
+                    "${current.temperature}°C",
                     style: const TextStyle(
                         fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    cityName,
+                    "${location.name}, ${location.region}\n$formattedDate",
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   Center(
                     child: Column(
                       children: [
-                        Icon(
-                          currentWeatherIcon,
-                          size: 100,
-                          color: Colors.orange,
+                        Image.network(
+                          current.weatherIcons.first,
+                          width: 100,
+                          height: 100,
                         ),
                         Text(
-                          currentCondition,
+                          current.weatherDescriptions.first,
                           style: const TextStyle(fontSize: 20),
                         ),
                       ],
@@ -83,79 +84,25 @@ class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProvider
                   ),
                   const SizedBox(height: 16),
 
-                  // High and Low Temperature
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "H - ${highTemp.toStringAsFixed(0)}°C",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        "L - ${lowTemp.toStringAsFixed(0)}°C",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                  // Weather details
+                  _buildWeatherDetail('Feels Like', '${current.feelslike}°C'),
+                  _buildWeatherDetail('Humidity', '${current.humidity}%'),
+                  _buildWeatherDetail(
+                      'Wind Speed', '${current.windSpeed} km/h'),
+                  _buildWeatherDetail('Pressure', '${current.pressure} hPa'),
+                  _buildWeatherDetail('UV Index', current.uvIndex.toString()),
+                  _buildWeatherDetail('Visibility', '${current.visibility} km'),
+                  _buildWeatherDetail('Precipitation', '${current.precip} mm'),
 
-                  // 5-Day Forecast Heading
+                  const SizedBox(height: 16),
                   const Text(
-                    "5-Day Forecast",
+                    "Sun & Moon",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-
-                  // 5-Day Forecast List
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: forecast.length,
-                      itemBuilder: (context, index) {
-                        final dayForecast = forecast[index];
-                        final date = DateTime.parse(dayForecast['date']);
-                        final dayOfWeek = DateFormat('E').format(date);
-                        final temp = dayForecast['extra']['main']['temp']
-                            .toStringAsFixed(0);
-                        final weatherIcon = _getWeatherIcon(
-                            dayForecast['extra']['weather'][0]['icon']);
-
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    weatherIcon,
-                                    size: 30,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    dayOfWeek,
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                "$temp°C",
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  _buildSunMoonDetail('Sunrise', current.astro.sunrise),
+                  _buildSunMoonDetail('Sunset', current.astro.sunset),
+                  _buildSunMoonDetail('Moon Phase', current.astro.moonPhase),
                 ],
               ),
             );
@@ -165,37 +112,46 @@ class _WeatherScreenState extends State<WeatherScreen> with SingleTickerProvider
     );
   }
 
-  IconData _getWeatherIcon(String iconCode) {
-    switch (iconCode) {
-      case '01d':
-      case '01n':
-        return Icons.wb_sunny;
-      case '02d':
-      case '02n':
-        return Icons.cloud;
-      case '03d':
-      case '03n':
-        return Icons.cloud;
-      case '04d':
-      case '04n':
-        return Icons.cloud;
-      case '09d':
-      case '09n':
-        return Icons.grain;
-      case '10d':
-      case '10n':
-        return Icons.grain;
-      case '11d':
-      case '11n':
-        return Icons.flash_on;
-      case '13d':
-      case '13n':
-        return Icons.ac_unit;
-      case '50d':
-      case '50n':
-        return Icons.blur_on;
-      default:
-        return Icons.wb_sunny;
-    }
+  Widget _buildWeatherDetail(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 16),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSunMoonDetail(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Icon(
+            label.contains('Sun') ? Icons.wb_sunny : Icons.nightlight_round,
+            color: Colors.orange,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
   }
 }

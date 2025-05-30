@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:sinchai_sathi/models/weather_model.dart';
 import 'package:sinchai_sathi/services/api_service.dart';
 import 'package:sinchai_sathi/utils/colors.dart';
 import 'package:sinchai_sathi/utils/local_storage.dart';
@@ -27,42 +28,27 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isDrawerOpen = false;
 
   String userName = '';
+  String userId = '';
   Map<String, dynamic>? weatherData;
   late String formattedDate;
 
   Future<void> _fetchUserDetails() async {
     String? name = await SLocalStorage().getUserName();
+    String? userId = await SLocalStorage().getUserId();
     if (mounted) {
       setState(() {
         userName = name ?? '';
+        userId = userId ?? '';
       });
     }
+    print('User ID: $userId, User Name: $userName');
   }
 
-  Future<void> _fetchWeatherData() async {
-    try {
-      final data = await ApiService().fetchWeatherData(
-          23.184277, 77.327422); // Kalkhera, Bhopal, MP 
-      if (mounted) {
-        setState(() {
-          weatherData = data;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          weatherData = null; 
-        });
-      }
-      print('Error fetching weather data: $e');
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     _fetchUserDetails();
-    _fetchWeatherData();
 
     formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
 
@@ -203,41 +189,73 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                     child: SContainer(
                       icon: Icons.severe_cold,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            weatherData != null
-                                ? "Kalkhera, Bhopal\n$formattedDate"
-                                : "Gurugram, 4 December",
-                            style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            weatherData != null
-                                ? "${weatherData!['forecasts'][0]['extra']['main']['temp'].toStringAsFixed(0)}° C"
-                                : "17° C",
-                            style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 25.0,
-                                fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            weatherData != null
-                                ? "Perception of rain: ${weatherData!['forecasts'][0]['extra']['pop'] * 100}%"
-                                : "Perception of rain: 14%",
-                            style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(
-                            height: 5.0,
-                          )
-                        ],
+                      child: FutureBuilder<WeatherData>(
+                        future: ApiService().fetchWeatherForUser(userId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError || !snapshot.hasData) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "Location not available\n$formattedDate",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  "--° C",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 25.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  "Perception of rain: --%",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            );
+                          } else {
+                            final weatherData = snapshot.data!;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "${weatherData.location.name}, ${weatherData.location.region}\n$formattedDate",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  "${weatherData.current.temperature}° C",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 25.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  "Humidity: ${weatherData.current.humidity}%",
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(height: 5.0)
+                              ],
+                            );
+                          }
+                        },
                       ),
                     ),
                   ),
