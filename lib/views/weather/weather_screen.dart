@@ -15,18 +15,39 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   late String formattedDate;
   late Future<WeatherData> weatherDataFuture;
+  String token = '';
 
   @override
   void initState() {
     super.initState();
     formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
-    weatherDataFuture = _loadWeatherData();
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    try {
+      final storedToken = await SLocalStorage().getToken();
+      if (mounted) {
+        setState(() {
+          token = storedToken ?? '';
+          weatherDataFuture = _loadWeatherData();
+        });
+      }
+      print('Token from storage: $storedToken');
+    } catch (e) {
+      print('Error fetching user details: $e');
+    }
   }
 
   Future<WeatherData> _loadWeatherData() async {
-    final localStorage = SLocalStorage();
-    final userId = await localStorage.getUserId();
-    return ApiService().fetchWeatherForUser(userId!);
+    if (token.isEmpty) {
+      final storedToken = await SLocalStorage().getToken();
+      if (storedToken == null || storedToken.isEmpty) {
+        throw Exception('No authentication token available');
+      }
+      token = storedToken;
+    }
+    return ApiService().fetchWeatherForUser(token);
   }
 
   @override
@@ -36,78 +57,87 @@ class _WeatherScreenState extends State<WeatherScreen> {
         backgroundColor: SColors.primary,
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        title: const Text('Weather App'),
+        title: const Text('Weather Forecasting'),
       ),
-      body: FutureBuilder<WeatherData>(
-        future: weatherDataFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData) {
-            return const Center(child: Text('No data available'));
-          } else {
-            final weatherData = snapshot.data!;
-            final location = weatherData.location;
-            final current = weatherData.current;
+      body: SingleChildScrollView(
+        child: FutureBuilder<WeatherData>(
+          future: weatherDataFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData) {
+              return const Center(child: Text('No data available'));
+            } else {
+              final weatherData = snapshot.data!;
+              final location = weatherData.location;
+              final current = weatherData.current;
 
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${current.temperature}°C",
-                    style: const TextStyle(
-                        fontSize: 25, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "${location.name}, ${location.region}\n$formattedDate",
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  Center(
-                    child: Column(
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${current.temperature}°C",
+                      style: const TextStyle(
+                          fontSize: 25, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "${location.name}, ${location.region}\n$formattedDate",
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Image.network(
                           current.weatherIcons.first,
-                          width: 100,
+                          width: 75,
                           height: 100,
                         ),
                         Text(
                           current.weatherDescriptions.first,
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+                        // const SizedBox(width: 20,)
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Weather details
-                  _buildWeatherDetail('Feels Like', '${current.feelslike}°C'),
-                  _buildWeatherDetail('Humidity', '${current.humidity}%'),
-                  _buildWeatherDetail(
-                      'Wind Speed', '${current.windSpeed} km/h'),
-                  _buildWeatherDetail('Pressure', '${current.pressure} hPa'),
-                  _buildWeatherDetail('UV Index', current.uvIndex.toString()),
-                  _buildWeatherDetail('Visibility', '${current.visibility} km'),
-                  _buildWeatherDetail('Precipitation', '${current.precip} mm'),
+                    // Weather details
+                    _buildWeatherDetail('Feels Like', '${current.feelslike}°C'),
+                    _buildWeatherDetail('Humidity', '${current.humidity}%'),
+                    _buildWeatherDetail(
+                        'Wind Speed', '${current.windSpeed} km/h'),
+                    _buildWeatherDetail('Pressure', '${current.pressure} hPa'),
+                    _buildWeatherDetail('UV Index', current.uvIndex.toString()),
+                    _buildWeatherDetail(
+                        'Visibility', '${current.visibility} km'),
+                    _buildWeatherDetail(
+                        'Precipitation', '${current.precip} mm'),
 
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Sun & Moon",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildSunMoonDetail('Sunrise', current.astro.sunrise),
-                  _buildSunMoonDetail('Sunset', current.astro.sunset),
-                  _buildSunMoonDetail('Moon Phase', current.astro.moonPhase),
-                ],
-              ),
-            );
-          }
-        },
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Sun & Moon",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSunMoonDetail('Sunrise', current.astro.sunrise),
+                    _buildSunMoonDetail('Sunset', current.astro.sunset),
+                    _buildSunMoonDetail('Moon Phase', current.astro.moonPhase),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
   }
