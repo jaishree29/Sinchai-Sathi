@@ -10,24 +10,44 @@ class ApiService {
   static const String weatherUrl = 'http://api.weatherstack.com';
   static const String _accessKey = 'e76f2464824f64b3531249c16c05df2a';
 
-    Future<WeatherData> fetchWeatherData(String location) async {
-    final response = await http.get(
-      Uri.parse('$weatherUrl/current?access_key=$_accessKey&query=$location'),
-    );
-
-    if (response.statusCode == 200) {
-      return WeatherData.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load weather data');
+  Future<WeatherData> fetchWeatherForUser(String token) async {
+    print("This is the token: $token");
+    if (token.isEmpty) {
+      throw Exception('Token is empty');
+    }
+    try {
+      final user = await getFarmerDetails(token);
+      print("This is the user: $user");
+      if (user.farmer.location.isEmpty) {
+        throw Exception('User location not found');
+      }
+      return await fetchWeatherData(user.farmer.location);
+    } catch (e) {
+      print('Error fetching weather data: $e');
+      throw Exception('Failed to fetch weather data: $e');
     }
   }
 
-  Future<WeatherData> fetchWeatherForUser(String userId) async {
-    final user = await login(userId);
-    return fetchWeatherData(user.farmer.location);
+  Future<WeatherData> fetchWeatherData(String location) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$weatherUrl/current?access_key=$_accessKey&query=$location'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Weather API response: $data'); 
+        return WeatherData.fromJson(data);
+      } else {
+        throw Exception('Failed to load weather data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in fetchWeatherData: $e');
+      throw Exception('Failed to fetch weather data: $e');
+    }
   }
 
-  //Sign Up is working fine
+  //Sign Up
   Future<User> signup(Farmer farmer) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$createFarmer'),
@@ -39,7 +59,7 @@ class ApiService {
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
-      // Extract tokens from headers
+      // Extracting tokens from headers
       final token = response.headers['authorization'];
       final refreshToken = response.headers['refresh-token'];
 
@@ -60,7 +80,7 @@ class ApiService {
 
   Future<User> login(String contactNumber) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/$getFarmer'),
+      Uri.parse('$baseUrl/$loginFarmer'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'contactNumber': contactNumber}),
     );
@@ -72,6 +92,28 @@ class ApiService {
         'token': response.headers['authorization']?.replaceFirst('Bearer ', ''),
         'refreshToken': response.headers['refresh-token'],
       });
+    } else if (response.statusCode == 404) {
+      throw Exception('Farmer not found');
+    } else {
+      throw Exception('Failed to login: ${response.body}');
+    }
+  }
+
+  Future<User> getFarmerDetails(String token) async {
+    if (token.isEmpty) {
+      throw Exception('Token is empty');
+    }
+    final response = await http.get(
+      Uri.parse('$baseUrl/$getFarmer'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return User.fromJson(responseBody);
     } else if (response.statusCode == 404) {
       throw Exception('Farmer not found');
     } else {

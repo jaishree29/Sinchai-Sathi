@@ -19,11 +19,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _contactNumberController =
       TextEditingController();
   bool _isLoading = false;
+  late dynamic user;
 
   Future<void> _login() async {
     setState(() => _isLoading = true);
     try {
-      await _authController.login(_contactNumberController.text);
+      final user = await _authController.login(_contactNumberController.text);
+      print("User logged in: $user");
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -31,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      print(e);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),

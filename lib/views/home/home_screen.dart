@@ -28,28 +28,42 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isDrawerOpen = false;
 
   String userName = '';
-  String userId = '';
+  String token = '';
   Map<String, dynamic>? weatherData;
   late String formattedDate;
 
   Future<void> _fetchUserDetails() async {
-    String? name = await SLocalStorage().getUserName();
-    String? userId = await SLocalStorage().getUserId();
-    if (mounted) {
-      setState(() {
-        userName = name ?? '';
-        userId = userId ?? '';
-      });
+    try {
+      final storedName = await SLocalStorage().getUserName();
+      final storedToken = await SLocalStorage().getToken();
+
+      if (mounted) {
+        setState(() {
+          userName = storedName ?? '';
+          token = storedToken ?? '';
+        });
+      }
+      print('Token from storage: $storedToken');
+    } catch (e) {
+      print('Error fetching user details: $e');
     }
-    print('User ID: $userId, User Name: $userName');
   }
 
+  Future<WeatherData> _fetchWeatherData() async {
+    if (token.isEmpty) {
+      final storedToken = await SLocalStorage().getToken();
+      if (storedToken == null || storedToken.isEmpty) {
+        throw Exception('No authentication token available');
+      }
+      token = storedToken;
+    }
+    return ApiService().fetchWeatherForUser(token);
+  }
 
   @override
   void initState() {
     super.initState();
     _fetchUserDetails();
-
     formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
 
     _controller = AnimationController(
@@ -190,13 +204,27 @@ class _HomeScreenState extends State<HomeScreen>
                     child: SContainer(
                       icon: Icons.severe_cold,
                       child: FutureBuilder<WeatherData>(
-                        future: ApiService().fetchWeatherForUser(userId),
+                        future:
+                            _fetchWeatherData(), // Create a separate method for fetching weather
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
                                 child: CircularProgressIndicator());
-                          } else if (snapshot.hasError || !snapshot.hasData) {
+                          } else if (snapshot.hasError) {
+                            print('Weather fetch error: ${snapshot.error}');
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "Error loading weather\n$formattedDate",
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            );
+                          } else if (!snapshot.hasData) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -225,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen>
                               ],
                             );
                           } else {
+                            print("Weather Data: ${snapshot.data}");
                             final weatherData = snapshot.data!;
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

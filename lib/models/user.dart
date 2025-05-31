@@ -68,4 +68,9 @@ class User {
       refreshToken: json['refreshToken'],
     );
   }
+
+  @override
+  String toString() {
+    return 'User(farmer: $farmer, message: $message, token: $token, refreshToken: $refreshToken)';
+  }
 }

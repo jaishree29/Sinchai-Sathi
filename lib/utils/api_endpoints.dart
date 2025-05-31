@@ -1,5 +1,6 @@
 const String createFarmer = 'api/v1/farmer/signup';
-const String getFarmer = 'api/v1/farmer/login';
+const String loginFarmer = 'api/v1/farmer/login';
+const String getFarmer = 'api/v1/farmer/details';
 const String schedule = 'api/v1/irrigation/schedule';
 const String changePumpStatus = 'api/v1/irrigation/toggle';
 const String pumpStatus = 'api/v1/irrigation/state';

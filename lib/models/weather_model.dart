@@ -10,11 +10,16 @@ class WeatherData {
   });
 
   factory WeatherData.fromJson(Map<String, dynamic> json) {
-    return WeatherData(
-      request: Request.fromJson(json['request']),
-      location: Location.fromJson(json['location']),
-      current: Current.fromJson(json['current']),
-    );
+    try {
+      return WeatherData(
+        request: Request.fromJson(json['request'] ?? {}),
+        location: Location.fromJson(json['location'] ?? {}),
+        current: Current.fromJson(json['current'] ?? {}),
+      );
+    } catch (e) {
+      print('Error parsing WeatherData: $e');
+      throw Exception('Failed to parse weather data: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -62,12 +67,12 @@ class Location {
   final String name;
   final String country;
   final String region;
-  final String lat;
-  final String lon;
+  final dynamic lat; // Changed from String to dynamic
+  final dynamic lon; // Changed from String to dynamic
   final String timezoneId;
   final String localtime;
   final int localtimeEpoch;
-  final String utcOffset;
+  final dynamic utcOffset; // Changed from String to dynamic
 
   Location({
     required this.name,
@@ -83,14 +88,14 @@ class Location {
 
   factory Location.fromJson(Map<String, dynamic> json) {
     return Location(
-      name: json['name'],
-      country: json['country'],
-      region: json['region'],
+      name: json['name']?.toString() ?? '',
+      country: json['country']?.toString() ?? '',
+      region: json['region']?.toString() ?? '',
       lat: json['lat'],
       lon: json['lon'],
-      timezoneId: json['timezone_id'],
-      localtime: json['localtime'],
-      localtimeEpoch: json['localtime_epoch'],
+      timezoneId: json['timezone_id']?.toString() ?? '',
+      localtime: json['localtime']?.toString() ?? '',
+      localtimeEpoch: json['localtime_epoch'] ?? 0,
       utcOffset: json['utc_offset'],
     );
   }
@@ -152,26 +157,32 @@ class Current {
   });
 
   factory Current.fromJson(Map<String, dynamic> json) {
-    return Current(
-      observationTime: json['observation_time'],
-      temperature: json['temperature'],
-      weatherCode: json['weather_code'],
-      weatherIcons: List<String>.from(json['weather_icons']),
-      weatherDescriptions: List<String>.from(json['weather_descriptions']),
-      astro: Astro.fromJson(json['astro']),
-      airQuality: AirQuality.fromJson(json['air_quality']),
-      windSpeed: json['wind_speed'],
-      windDegree: json['wind_degree'],
-      windDir: json['wind_dir'],
-      pressure: json['pressure'],
-      precip: json['precip'].toDouble(),
-      humidity: json['humidity'],
-      cloudcover: json['cloudcover'],
-      feelslike: json['feelslike'],
-      uvIndex: json['uv_index'],
-      visibility: json['visibility'],
-      isDay: json['is_day'],
-    );
+    try {
+      return Current(
+        observationTime: json['observation_time']?.toString() ?? '',
+        temperature: json['temperature'] ?? 0,
+        weatherCode: json['weather_code'] ?? 0,
+        weatherIcons: List<String>.from(json['weather_icons'] ?? []),
+        weatherDescriptions:
+            List<String>.from(json['weather_descriptions'] ?? []),
+        astro: Astro.fromJson(json['astro'] ?? {}),
+        airQuality: AirQuality.fromJson(json['air_quality'] ?? {}),
+        windSpeed: json['wind_speed'] ?? 0,
+        windDegree: json['wind_degree'] ?? 0,
+        windDir: json['wind_dir']?.toString() ?? '',
+        pressure: json['pressure'] ?? 0,
+        precip: (json['precip'] ?? 0).toDouble(),
+        humidity: json['humidity'] ?? 0,
+        cloudcover: json['cloudcover'] ?? 0,
+        feelslike: json['feelslike'] ?? 0,
+        uvIndex: json['uv_index'] ?? 0,
+        visibility: json['visibility'] ?? 0,
+        isDay: json['is_day']?.toString() ?? '',
+      );
+    } catch (e) {
+      print('Error parsing Current: $e');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -239,14 +250,14 @@ class Astro {
 }
 
 class AirQuality {
-  final String co;
-  final String no2;
-  final String o3;
-  final String so2;
-  final String pm25;
-  final String pm10;
-  final String usEpaIndex;
-  final String gbDefraIndex;
+  final dynamic co; // Changed from String
+  final dynamic no2; // Changed from String
+  final dynamic o3; // Changed from String
+  final dynamic so2; // Changed from String
+  final dynamic pm25; // Changed from String
+  final dynamic pm10; // Changed from String
+  final dynamic usEpaIndex; // Changed from String
+  final dynamic gbDefraIndex; // Changed from String
 
   AirQuality({
     required this.co,
