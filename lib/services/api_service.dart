@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sinchai_sathi/models/schedule_model.dart';
+import 'package:sinchai_sathi/models/soildata_model.dart';
 import 'package:sinchai_sathi/models/weather_model.dart';
 import 'package:sinchai_sathi/utils/api_endpoints.dart';
 import '../models/user.dart';
@@ -36,7 +37,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('Weather API response: $data'); 
+        print('Weather API response: $data');
         return WeatherData.fromJson(data);
       } else {
         throw Exception('Failed to load weather data: ${response.statusCode}');
@@ -212,15 +213,18 @@ class ApiService {
   }
 
   //get soil data
-  Future<Map<String, dynamic>> getSoilAnalysis(int farmerId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/$getSoil/$farmerId'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'farmerId': farmerId}),
+  Future<SoilData> getSoilAnalysis(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/$getSoil'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final responseData = jsonDecode(response.body);
+      return SoilData.fromJson(responseData['data']);
     } else {
       print(
           'Failed to load soil analysis data. Status Code: ${response.statusCode}');

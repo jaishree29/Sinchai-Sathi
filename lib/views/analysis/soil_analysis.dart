@@ -20,7 +20,7 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
   void initState() {
     super.initState();
     fetchSoilData();
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
       fetchSoilData();
     });
   }
@@ -33,16 +33,25 @@ class _SoilAnalysisState extends State<SoilAnalysis> {
 
   Future<void> fetchSoilData() async {
     final apiService = ApiService();
-    var farmerId = await SLocalStorage().getUserId();
+    var token = await SLocalStorage().getToken();
 
     try {
-      final data = await apiService.getSoilAnalysis(int.parse('$farmerId'));
-      print("Successfully fetched analysis:");
+      final data = await apiService.getSoilAnalysis(token!);
+      var farmerName = await SLocalStorage().getUserName();
+
       setState(() {
         soilData = {
-          ...data,
-          'waterRequired': (data['waterRequired'] ?? 0) / 1000,
-          'irrigationDuration': (data['irrigationDuration'] / 60000 ?? 0).toInt(),
+          'id': data.id,
+          'farmerName': farmerName ?? 'Unknown Farmer',
+          'location': data.location,
+          'cropType': data.cropType,
+          'moisture': data.moisture,
+          'humidity': data.soilHumidity,
+          'airTemperature': data.airTemperature,
+          'airHumidity': data.airHumidity,
+          'flow': data.flow,
+          'irrigationDuration': data.irrigationDuration,
+          'waterRequired': data.waterRequired / 1000,
         };
         isLoading = false;
       });
