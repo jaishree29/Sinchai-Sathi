@@ -5,7 +5,7 @@ class Farmer {
   String location;
   String cropType;
   int waterPumpWatt;
-  String irrigationState;
+  bool irrigationState;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -29,7 +29,7 @@ class Farmer {
       location: json['location'],
       cropType: json['cropType'],
       waterPumpWatt: json['waterPumpWatt'],
-      irrigationState: json['irrigationState'],
+      irrigationState: json['irrigationstate'] ?? false,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );
@@ -42,7 +42,7 @@ class Farmer {
       'location': location,
       'cropType': cropType,
       'waterPumpWatt': waterPumpWatt,
-      'irrigationState': irrigationState,
+      'irrigationstate': irrigationState,
     };
   }
 }

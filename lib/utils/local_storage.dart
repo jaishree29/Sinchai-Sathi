@@ -11,18 +11,24 @@ class SLocalStorage {
   static const String _userIdKey = 'user_id';
   static const String _userNameKey = 'user_name';
   static const String _loginKey = 'is_logged_in';
+  static const String _cropTypeKey = 'crop_type';
+  static const String _locationKey = 'location';
 
   Future<void> saveAuthData({
     required String token,
     required String refreshToken,
     required String userId,
     required String userName,
+    String? cropType,
+    String? location,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
     await prefs.setString(_refreshTokenKey, refreshToken);
     await prefs.setString(_userIdKey, userId);
     await prefs.setString(_userNameKey, userName);
+    if (cropType != null) await prefs.setString(_cropTypeKey, cropType);
+    if (location != null) await prefs.setString(_locationKey, location);
     await prefs.setBool(_loginKey, true);
   }
 
@@ -46,6 +52,16 @@ class SLocalStorage {
     return prefs.getString(_userNameKey);
   }
 
+  Future<String?> getCropType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_cropTypeKey);
+  }
+
+  Future<String?> getLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_locationKey);
+  }
+
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_loginKey) ?? false;
@@ -57,6 +73,8 @@ class SLocalStorage {
     await prefs.remove(_refreshTokenKey);
     await prefs.remove(_userIdKey);
     await prefs.remove(_userNameKey);
+    await prefs.remove(_cropTypeKey);
+    await prefs.remove(_locationKey);
     await prefs.setBool(_loginKey, false);
   }
 }

@@ -5,7 +5,7 @@ import 'package:sinchai_sathi/utils/colors.dart';
 
 class ScheduleListTile extends StatelessWidget {
   final Schedule schedule;
-  final Function(int) onDelete;
+  final Function(String) onDelete;
 
   const ScheduleListTile({
     super.key,

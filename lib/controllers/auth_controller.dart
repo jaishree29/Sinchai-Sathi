@@ -14,6 +14,8 @@ class AuthController {
         refreshToken: user.refreshToken!,
         userId: user.farmer.id,
         userName: user.farmer.name,
+        cropType: user.farmer.cropType,
+        location: user.farmer.location,
       );
       return user;
     } on Exception {
@@ -31,6 +33,8 @@ class AuthController {
         refreshToken: response.refreshToken!,
         userId: response.farmer.id,
         userName: response.farmer.name,
+        cropType: response.farmer.cropType,
+        location: response.farmer.location,
       );
       return response;
     } catch (e) {

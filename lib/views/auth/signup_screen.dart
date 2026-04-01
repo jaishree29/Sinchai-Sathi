@@ -22,8 +22,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _cropTypeController = TextEditingController();
   final TextEditingController _pumpWattController = TextEditingController();
-  final TextEditingController _irrigationStateController =
-      TextEditingController();
+
   bool _isLoading = false;
 
   Future<void> _signup() async {
@@ -36,7 +35,7 @@ class _SignupScreenState extends State<SignupScreen> {
         location: _locationController.text,
         cropType: _cropTypeController.text,
         waterPumpWatt: int.parse(_pumpWattController.text),
-        irrigationState: _irrigationStateController.text,
+        irrigationState: false,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -124,10 +123,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       controller: _pumpWattController,
                     ),
                     const SizedBox(height: 10),
-                    STextField(
-                      labelText: 'Irrigation State',
-                      controller: _irrigationStateController,
-                    ),
+
                     const SizedBox(height: 30),
                   ],
                 ),

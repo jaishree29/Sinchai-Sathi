@@ -1,5 +1,5 @@
 class Schedule {
-  final int id;
+  final String id;
   final String startTime;
   final String endTime;
   final String repeat;

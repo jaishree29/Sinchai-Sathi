@@ -10,13 +10,13 @@ class AboutCropsScreen extends StatelessWidget {
     // Crop data as a Map
     final Map<String, String> cropData = {
       'Potato':
-          'https://img.freepik.com/free-photo/potatoes-closeup-as-background-top-view_176474-2023.jpg?t=st=1733073128~exp=1733076728~hmac=13ef1c000f3c3f3965d6a0f8ac680aef83fa1d8479fe4bac691d65801cb7b8d0&w=1380',
+          'https://images.unsplash.com/photo-1518977676651-b471f97c9079?w=500&auto=format&fit=crop&q=60',
       'Wheat':
-          'https://img.freepik.com/free-photo/wheat-field-waving-wind-field-background_1268-30583.jpg?t=st=1733072854~exp=1733076454~hmac=2fdb9a6de8021d4fd68337284ca5f68a90754cbdc9144b01b8fc41ecfb265542&w=1380',
+          'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&auto=format&fit=crop&q=60',
       'Tomato':
-          'https://img.freepik.com/free-photo/fresh-wet-tomatoes_144627-24355.jpg?t=st=1733073240~exp=1733076840~hmac=65cd6adca0d75b9b2d0347a5b5b5b327dee0e4afe0773c3ed2b37d004c942424&w=740',
+          'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=60',
       'Lettuce':
-          'https://img.freepik.com/free-photo/lettuce-closeup-texture-background_144627-30014.jpg?t=st=1733073423~exp=1733077023~hmac=83d298b4eb9e64eb6cbe578e9bb986e629eefccd8ee1c6df8c9d20f20f1b4de2&w=1380',
+          'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=500&auto=format&fit=crop&q=60',
     };
 
     return Scaffold(

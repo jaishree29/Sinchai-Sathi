@@ -30,8 +30,10 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
 
   // Fetch schedules working fine
   void fetchSchedules() async {
+    final token = await SLocalStorage().getToken();
+    if (token == null) return;
     try {
-      final fetchedSchedules = await apiService.getSchedules(1);
+      final fetchedSchedules = await apiService.getSchedules(token);
       print('Schedules fetched successfully');
       setState(() {
         schedules = fetchedSchedules;
@@ -47,11 +49,13 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
 
   // Motor status working fine
   void fetchMotorStatus() async {
+    final token = await SLocalStorage().getToken();
+    if (token == null) return;
     try {
-      final status = await apiService.getPumpStatus(1);
+      final status = await apiService.getPumpStatus(token);
       print('Motor status fetched successfully');
       setState(() {
-        motorStatus = status == 'on';
+        motorStatus = status == true;
       });
     } catch (e) {
       print('Error fetching motor status: $e');
@@ -59,22 +63,36 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
   }
 
   // Toggling motor working fine
+  // Toggling motor
   void toggleMotor() async {
-    final userId = await SLocalStorage().getUserId();
-    print('User ID: $userId');
+    final token = await SLocalStorage().getToken();
+    if (token == null) return;
+    
+    // Optimistic update
+    setState(() {
+      motorStatus = !motorStatus;
+    });
+
     try {
-      final userIdInt = int.tryParse(userId!);
-      if (userIdInt == null) {
-        print('Invalid user ID: $userId');
-        return;
+      // Send boolean, expect boolean or 'on'/'off'
+      // The API service currently returns 'on'/'off' string. 
+      // I will update it to return boolean if possible, or just ignore the return if I trust the optimistic update,
+      // but better to verify.
+      final status = await apiService.togglePumpStatus(token, motorStatus);
+      
+      // If status is 'on' or true, set to true.
+      bool newStatus = status == true;
+      
+      if (newStatus != motorStatus) {
+         // If server disagrees, revert
+         setState(() {
+           motorStatus = newStatus;
+         });
       }
-      setState(() {
-        motorStatus = !motorStatus;
-      });
-      final status = await apiService.togglePumpStatus(userIdInt, motorStatus);
       print('Motor status toggled successfully: $status');
     } catch (e) {
       print('Error toggling motor: $e');
+      // Revert on error
       setState(() {
         motorStatus = !motorStatus;
       });
@@ -83,19 +101,11 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
 
   // Create schedule working fine
   void addSchedule(String startTime, String endTime, String repeat) async {
-    final userId = await SLocalStorage().getUserId();
-    print('User ID from local storage: $userId');
+    final token = await SLocalStorage().getToken();
+    if (token == null) return;
 
     try {
-      final userIdInt = int.tryParse(userId!);
-
-      if (userIdInt == null) {
-        print('Invalid user ID: $userId');
-        return;
-      }
-
-      final newSchedule = await apiService.createSchedule({
-        'farmerId': userIdInt,
+      final newSchedule = await apiService.createSchedule(token, {
         'startTime': startTime,
         'endTime': endTime,
         'repeat': repeat,
@@ -110,9 +120,11 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
   }
 
   // Delete Schedule working fine
-  void deleteSchedule(int id) async {
+  void deleteSchedule(String id) async {
+    final token = await SLocalStorage().getToken();
+    if (token == null) return;
     try {
-      await apiService.deleteSchedule(id);
+      await apiService.deleteSchedule(token, id);
       fetchSchedules();
     } catch (e) {
       print(e);
@@ -126,7 +138,7 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
         backgroundColor: SColors.primary,
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        title: const Text('Water Scheduling'),
+        title: const Text('Irrigation'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

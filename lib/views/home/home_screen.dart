@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen>
   String userName = '';
   String token = '';
   Map<String, dynamic>? weatherData;
+  late Future<WeatherData> _weatherFuture;
   late String formattedDate;
 
   Future<void> _fetchUserDetails() async {
@@ -49,13 +50,18 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Future<WeatherData> _fetchWeatherData() async {
+  Future<WeatherData> _getWeatherWithToken() async {
+    await _fetchUserDetails();
     if (token.isEmpty) {
-      final storedToken = await SLocalStorage().getToken();
-      if (storedToken == null || storedToken.isEmpty) {
-        throw Exception('No authentication token available');
-      }
-      token = storedToken;
+       // Try getting token again directly if _fetchUserDetails didn't set it in time (it awaits, so it should be fine)
+       // But _fetchUserDetails sets state, which might not reflect in 'token' variable immediately inside this async function? 
+       // Actually 'token' is a class member, it should be updated.
+       // But just to be safe, I'll read from storage if empty.
+       final storedToken = await SLocalStorage().getToken();
+       if (storedToken != null) token = storedToken;
+    }
+    if (token.isEmpty) {
+      throw Exception('No authentication token available');
     }
     return ApiService().fetchWeatherForUser(token);
   }
@@ -63,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _fetchUserDetails();
+    _weatherFuture = _getWeatherWithToken();
     formattedDate = DateFormat.yMMMMEEEEd().format(DateTime.now());
 
     _controller = AnimationController(
@@ -101,64 +107,116 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 80,
-        backgroundColor: Colors.transparent,
-        leading: InkWell(
-          splashColor: Colors.transparent,
-          onTap: _toggleDrawer,
-          child: const Padding(
-            padding: EdgeInsets.only(left: 12.0),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(
-                'https://img.freepik.com/free-vector/cute-cool-boy-dabbing-pose-cartoon-vector-icon-illustration-people-fashion-icon-concept-isolated_138676-5680.jpg?t=st=1733131305~exp=1733134905~hmac=a1b05ebdf1385da653bf6ec4e40b0bf395afbc7af28f13c8c9a70a47d7074292&w=740',
-              ),
+      backgroundColor: SColors.background,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: SColors.primaryGradient,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x206B8E23),
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
           ),
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Welcome back,',
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 16,
+          child: AppBar(
+            toolbarHeight: 100,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 12.0, top: 8.0),
+              child: InkWell(
+                splashColor: Colors.transparent,
+                onTap: _toggleDrawer,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const CircleAvatar(
+                    radius: 22,
+                    backgroundImage: NetworkImage(
+                      'https://images.unsplash.com/photo-1595956553066-fe24a8c33395?w=500&auto=format&fit=crop&q=60',
+                    ),
                   ),
                 ),
-                Text(
-                  userName.isNotEmpty ? userName : 'User',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                      color: SColors.primary),
-                ),
-              ],
-            ),
-            InkWell(
-              splashColor: SColors.primary.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(50),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Notifications(),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.notifications_active_rounded,
-                  size: 30,
-                  color: SColors.primary,
-                ),
               ),
             ),
-          ],
+            title: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome back,',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          userName.isNotEmpty ? userName : 'Farmer',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Notifications(),
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Icon(
+                            Icons.notifications_active_rounded,
+                            size: 26,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            centerTitle: false,
+          ),
         ),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -204,8 +262,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: SContainer(
                       icon: Icons.severe_cold,
                       child: FutureBuilder<WeatherData>(
-                        future:
-                            _fetchWeatherData(), // Create a separate method for fetching weather
+                        future: _weatherFuture,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -355,25 +412,25 @@ class _HomeScreenState extends State<HomeScreen>
                       SCircularContainer(
                         title: 'Potato',
                         image: NetworkImage(
-                          'https://img.freepik.com/free-photo/potatoes-closeup-as-background-top-view_176474-2023.jpg?t=st=1733073128~exp=1733076728~hmac=13ef1c000f3c3f3965d6a0f8ac680aef83fa1d8479fe4bac691d65801cb7b8d0&w=1380',
+                          'https://images.unsplash.com/photo-1518977676651-b471f97c9079?w=500&auto=format&fit=crop&q=60',
                         ),
                       ),
                       SCircularContainer(
                         title: 'Wheat',
                         image: NetworkImage(
-                          'https://img.freepik.com/free-photo/wheat-field-waving-wind-field-background_1268-30583.jpg?t=st=1733072854~exp=1733076454~hmac=2fdb9a6de8021d4fd68337284ca5f68a90754cbdc9144b01b8fc41ecfb265542&w=1380',
+                          'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&auto=format&fit=crop&q=60',
                         ),
                       ),
                       SCircularContainer(
                         title: 'Tomato',
                         image: NetworkImage(
-                          'https://img.freepik.com/free-photo/fresh-wet-tomatoes_144627-24355.jpg?t=st=1733073240~exp=1733076840~hmac=65cd6adca0d75b9b2d0347a5b5b5b327dee0e4afe0773c3ed2b37d004c942424&w=740',
+                          'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=60',
                         ),
                       ),
                       SCircularContainer(
                         title: 'Lettuce',
                         image: NetworkImage(
-                          'https://img.freepik.com/free-photo/lettuce-closeup-texture-background_144627-30014.jpg?t=st=1733073423~exp=1733077023~hmac=83d298b4eb9e64eb6cbe578e9bb986e629eefccd8ee1c6df8c9d20f20f1b4de2&w=1380',
+                          'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=500&auto=format&fit=crop&q=60',
                         ),
                       ),
                     ],

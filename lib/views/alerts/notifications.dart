@@ -1,8 +1,86 @@
 import 'package:flutter/material.dart';
-import 'package:sinchai_sathi/utils/colors.dart'; // Import your app's color scheme
+import 'package:intl/intl.dart';
+import 'package:sinchai_sathi/services/api_service.dart';
+import 'package:sinchai_sathi/utils/colors.dart';
+import 'package:sinchai_sathi/utils/local_storage.dart';
 
-class Notifications extends StatelessWidget {
+class Notifications extends StatefulWidget {
   const Notifications({super.key});
+
+  @override
+  State<Notifications> createState() => _NotificationsState();
+}
+
+class _NotificationsState extends State<Notifications> {
+  List<Map<String, dynamic>> notifications = [];
+  bool isLoading = true;
+  final ApiService _apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+      final token = await SLocalStorage().getToken();
+      if (token == null) {
+        throw Exception('No token found');
+      }
+      final alerts = await _apiService.getAlerts(token);
+      setState(() {
+        notifications = alerts;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching notifications: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  IconData _getIconForAlert(String title, String priority) {
+    if (priority == 'high') return Icons.warning;
+    final lowerTitle = title.toLowerCase();
+    if (lowerTitle.contains('weather') || lowerTitle.contains('rain')) {
+      return Icons.cloud;
+    } else if (lowerTitle.contains('irrigation') ||
+        lowerTitle.contains('water')) {
+      return Icons.water_drop;
+    } else if (lowerTitle.contains('soil')) {
+      return Icons.spa;
+    } else if (lowerTitle.contains('pest') || lowerTitle.contains('bug')) {
+      return Icons.bug_report;
+    } else if (lowerTitle.contains('harvest')) {
+      return Icons.calendar_today;
+    } else if (lowerTitle.contains('sun')) {
+      return Icons.light_mode;
+    }
+    return Icons.notifications;
+  }
+
+  String _formatTime(String? timeString) {
+    if (timeString == null) return '';
+    try {
+      final dateTime = DateTime.parse(timeString);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays == 0) {
+        return DateFormat('hh:mm a').format(dateTime);
+      } else if (difference.inDays == 1) {
+        return 'Yesterday';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays} days ago';
+      } else {
+        return DateFormat('dd MMM').format(dateTime);
+      }
+    } catch (e) {
+      return timeString;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,46 +91,56 @@ class Notifications extends StatelessWidget {
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: dummyNotifications.length,
-        itemBuilder: (context, index) {
-          final notification = dummyNotifications[index];
-          return _buildNotificationItem(notification);
-        },
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : notifications.isEmpty
+              ? const Center(child: Text("No notifications"))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    final notification = notifications[index];
+                    return _buildNotificationItem(notification);
+                  },
+                ),
     );
   }
 
   Widget _buildNotificationItem(Map<String, dynamic> notification) {
+    final title = notification['title'] ?? 'Notification';
+    final message = notification['message'] ?? '';
+    final priority = notification['priority'] ?? 'normal';
+    final time = notification['time'];
+
     return Card(
       color: Colors.grey[100],
       elevation: 2.0,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: SColors.primary,
+          backgroundColor:
+              priority == 'high' ? Colors.red : SColors.primary,
           child: Icon(
-            notification['icon'],
+            _getIconForAlert(title, priority),
             color: Colors.white,
           ),
         ),
         title: Text(
-          notification['title'],
+          title,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16.0,
           ),
         ),
         subtitle: Text(
-          notification['message'],
+          message,
           style: const TextStyle(
             fontSize: 14.0,
             color: Colors.grey,
           ),
         ),
         trailing: Text(
-          notification['time'],
+          _formatTime(time),
           style: const TextStyle(
             fontSize: 12.0,
             color: Colors.grey,
@@ -60,69 +148,9 @@ class Notifications extends StatelessWidget {
         ),
         onTap: () {
           // Add navigation or action here if needed
-          print("Notification tapped: ${notification['title']}");
+          print("Notification tapped: $title");
         },
       ),
     );
   }
-
-  // Dummy notifications data
-  List<Map<String, dynamic>> get dummyNotifications => [
-        {
-          'icon': Icons.cloud,
-          'title': 'Weather Update',
-          'message':
-              'Rain expected tomorrow. Make sure to cover your crops to prevent waterlogging.',
-          'time': '10:30 AM',
-        },
-        {
-          'icon': Icons.water_drop,
-          'title': 'Irrigation Reminder',
-          'message':
-              'Your crops need water. Start irrigation for 30 minutes today.',
-          'time': '9:45 AM',
-        },
-        {
-          'icon': Icons.spa,
-          'title': 'Soil Health Alert',
-          'message':
-              'Your soil moisture is low. Consider adding organic matter to improve fertility.',
-          'time': 'Yesterday',
-        },
-        {
-          'icon': Icons.bug_report,
-          'title': 'Pest Alert',
-          'message':
-              'Monitor your crops for pests. Use organic pesticides if needed.',
-          'time': '2 days ago',
-        },
-        {
-          'icon': Icons.lightbulb,
-          'title': 'Crop Care Tip',
-          'message':
-              'Apply fertilizer evenly to avoid over-fertilization. Use 2 kg per acre.',
-          'time': '3 days ago',
-        },
-        {
-          'icon': Icons.calendar_today,
-          'title': 'Harvest Reminder',
-          'message':
-              'Your wheat crops are ready for harvest. Start harvesting within the next 5 days.',
-          'time': '1 week ago',
-        },
-        {
-          'icon': Icons.warning,
-          'title': 'Disease Warning',
-          'message':
-              'Fungal disease detected in your tomato crops. Apply fungicide immediately.',
-          'time': '1 week ago',
-        },
-        {
-          'icon': Icons.light_mode,
-          'title': 'Sunlight Alert',
-          'message':
-              'Your crops are receiving less sunlight. Consider pruning nearby trees.',
-          'time': '2 weeks ago',
-        },
-      ];
 }

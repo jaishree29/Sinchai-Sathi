@@ -39,6 +39,7 @@ class _SAppDrawerState extends State<SAppDrawer> {
 
     SLocalStorage().clearAuthData();
 
+
     if (!mounted) return;
 
     Navigator.pushReplacement(

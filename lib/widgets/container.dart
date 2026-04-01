@@ -13,29 +13,46 @@ class SContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 140.0,
-          width: double.infinity,
-          child: Card(
-            elevation: 10.0,
-            color: SColors.primary,
-            child: ListTile(
-              title: Padding(
-                  padding: const EdgeInsets.all(2.2), child: child),
-              trailing: Icon(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xff6B8E23), Color(0xff7A9D2A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: SColors.primary.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Container(
+        height: 150.0,
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: child,
+            ),
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Icon(
                 icon,
-                size: 60.0,
+                size: 50.0,
                 color: Colors.white,
               ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(
-          height: 10.0,
-        )
-      ],
+      ),
     );
   }
 }
